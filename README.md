@@ -1,68 +1,99 @@
 # Tower Defender
 
-Tower Defender é um tower defense web feito com HTML5, CSS3 e JavaScript puro. O jogo usa Canvas API para renderização, LocalStorage para recordes por modo, Lucide Icons via CDN para a interface e um test-runner simples sem bibliotecas externas.
+Tower Defender é um jogo de tower defense feito com HTML, CSS e JavaScript puro, renderizado em Canvas e sem etapa de build. O projeto tem dois modos completos, mapas responsivos, interface mobile dedicada e uma suíte simples de testes em JavaScript.
 
-## Como abrir o jogo
+## Visão Geral
 
-Abra `index.html` diretamente no navegador. A primeira tela mostra o menu de modos com duas experiências:
+Escolha um modo, posicione torres fora da rota dos inimigos, inicie ondas e sobreviva o máximo possível. Cada modo muda a linguagem visual, os nomes do HUD, a base, a rota, os inimigos e as defesas, mas preserva a mesma lógica central do jogo.
 
-- **Modo Futurista**: defenda o núcleo com torres de energia, lasers e inimigos digitais.
-- **Modo Medieval**: proteja o castelo com arqueiros, besteiros, canhões e uma estrada de terra própria.
+## Modos
 
-O projeto não exige backend, framework ou build step.
+### Futurista
 
-## Como jogar
+Defenda um núcleo tecnológico contra drones e unidades digitais. O mapa usa uma estética sci-fi, torres de energia e uma base em formato de nave espacial.
 
-- Escolha um modo no menu inicial.
-- Clique em uma carta de torre/defesa para selecioná-la.
-- Clique no mapa para posicionar fora da rota ou estrada.
-- Use `ESC` para cancelar a seleção.
-- Clique em uma torre posicionada para selecioná-la.
-- Use `Melhorar defesa` para evoluir a torre selecionada.
-- Clique em `Iniciar onda` ou `Iniciar cerco` para chamar a próxima onda.
-- Use `Reiniciar` para resetar a partida atual.
-- Use `Trocar modo` para voltar ao menu inicial.
+### Medieval
 
-## Modos e temas
+Proteja o castelo contra invasores em uma estrada de cerco. O modo usa paleta medieval, defesas temáticas, base em castelo de pedra e decorações no mapa.
 
-Os modos compartilham a mesma lógica central de tower defense. A diferença fica centralizada na camada de tema:
+## Recursos
 
-- labels do HUD e Game Over;
-- nomes e descrições visuais das torres;
-- nomes visuais dos inimigos;
-- paleta de UI;
-- path/mapa usado por movimento e colisão;
-- renderização do Canvas;
-- recordes separados no LocalStorage.
+- Gameplay completo de tower defense em Canvas.
+- Dois temas jogáveis: Futurista e Medieval.
+- Rotas diferentes por tema.
+- Mapas responsivos com rotas mobile verticais.
+- Modo foco em tela cheia no mobile.
+- Navbar inferior compacta para jogar melhor no celular.
+- HUD compacto no modo foco com vida, créditos/ouro e onda/cerco.
+- Posicionamento de torres com validação de rota, bordas e colisão.
+- Upgrades de torres durante a partida.
+- Ondas progressivas com inimigos comuns, rápidos e tanques.
+- Recordes separados por modo usando LocalStorage.
+- Test runner próprio, sem dependências externas de teste.
 
-Os tipos internos continuam estáveis:
+## Como Jogar
 
-- Torres: `basic`, `rapid`, `heavy`.
-- Inimigos: `common`, `fast`, `tank`.
+1. Abra `index.html` no navegador.
+2. Escolha `Modo Futurista` ou `Modo Medieval`.
+3. Selecione uma torre/defesa.
+4. Clique ou toque fora da rota para posicionar.
+5. Inicie a onda.
+6. Selecione torres posicionadas para melhorar.
+7. Sobreviva e tente bater o recorde.
 
-## Recordes
+No teclado, use `ESC` para cancelar a seleção atual.
 
-Os recordes são salvos separadamente por modo:
+## Mobile
 
-- `towerDefender.futuristic.bestScore`
-- `towerDefender.futuristic.bestWave`
-- `towerDefender.medieval.bestScore`
-- `towerDefender.medieval.bestWave`
-- `towerDefender.lastTheme`
+O jogo tem uma experiência mobile própria:
 
-Se houver recordes antigos globais, o modo futurista usa esses valores como compatibilidade inicial.
+- Canvas vertical para melhor leitura no celular.
+- Rotas ajustadas para inimigos avançarem de cima para baixo.
+- Torres, inimigos e área de toque ampliados.
+- Botão de ampliar arena no card do mapa.
+- Modo foco em tela cheia com controles essenciais na parte inferior.
 
-## Como rodar os testes
+## Tecnologias
 
-Abra `tests/test-runner.html` no navegador. A página mostra o total de testes, aprovados, falhados e a mensagem de erro quando houver falha.
+- HTML5
+- CSS3 responsivo
+- JavaScript puro
+- Canvas API
+- LocalStorage
+- Lucide Icons via CDN
+- Google Fonts via CDN
 
-Os testes cobrem:
+## Como Rodar
 
-- configuração de temas;
-- storage por tema;
-- colisão com path por tema;
-- estado inicial do jogo por tema;
-- inimigos, torres, projéteis, economia e ondas existentes.
+Não há instalação nem build.
+
+Abra diretamente:
+
+```text
+index.html
+```
+
+Para uma experiência completa com ícones e fonte, use uma conexão com internet, pois o projeto carrega Lucide Icons e Google Fonts via CDN.
+
+## Testes
+
+Abra no navegador:
+
+```text
+tests/test-runner.html
+```
+
+A suíte cobre:
+
+- temas e labels;
+- rotas desktop e mobile;
+- storage por modo;
+- economia;
+- ondas;
+- inimigos;
+- torres;
+- projéteis;
+- colisão e validação de posicionamento.
 
 ## Estrutura
 
@@ -70,40 +101,56 @@ Os testes cobrem:
 tower-defender/
   index.html
   style.css
+  README.md
   src/
-    game.js
     config.js
     theme.js
+    game.js
+    renderer.js
+    input.js
     path.js
-    enemy.js
+    collision.js
     tower.js
+    enemy.js
     projectile.js
     wave.js
     economy.js
-    collision.js
-    renderer.js
-    input.js
     storage.js
     utils.js
   tests/
     test-runner.html
     test-utils.js
     theme.test.js
-    storage.test.js
     game-theme.test.js
+    collision.test.js
+    economy.test.js
     enemy.test.js
     tower.test.js
     projectile.test.js
-    economy.test.js
+    storage.test.js
     wave.test.js
-    collision.test.js
-  README.md
 ```
 
-## Possíveis melhorias futuras
+## Arquitetura
 
-- Adicionar sons curtos de tiro, impacto e Game Over.
-- Criar mais mapas por tema.
-- Adicionar chefes temáticos a cada 5 ondas.
-- Permitir vender torres.
-- Criar upgrades visuais diferentes por modo.
+O projeto separa a lógica em módulos pequenos:
+
+- `game.js`: orquestra estado, UI, ondas, seleção e loop principal.
+- `renderer.js`: desenha mapa, torres, inimigos, projéteis, efeitos e bases no Canvas.
+- `theme.js`: concentra temas, rotas, labels e informações visuais.
+- `collision.js`: valida posicionamento e colisão.
+- `path.js`: calcula segmentos, progresso e distância até a rota.
+- `storage.js`: salva recordes e último modo no LocalStorage.
+
+## Roadmap Possível
+
+- Sons de tiro, impacto e derrota.
+- Mais mapas por tema.
+- Chefes a cada algumas ondas.
+- Venda de torres.
+- Novos tipos de defesa.
+- Animações especiais para upgrades.
+
+## Licença
+
+Este projeto ainda não define uma licença. Antes de publicar como open source, adicione um arquivo `LICENSE` com os termos desejados.
