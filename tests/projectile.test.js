@@ -36,5 +36,34 @@
       expect(projectile.active).toBeFalsy();
       expect(projectile.hasHit).toBeTruthy();
     });
+
+    test('projetil deve desativar sem causar dano se o alvo ja morreu', () => {
+      const enemy = new TD.Enemy({ type: 'common' });
+      enemy.x = 105;
+      enemy.y = 100;
+      enemy.takeDamage(999);
+      const projectile = new TD.Projectile({ x: 100, y: 100, target: enemy, damage: 20, speed: 8 });
+
+      projectile.update(16);
+
+      expect(projectile.active).toBeFalsy();
+      expect(projectile.hasHit).toBeFalsy();
+      expect(enemy.health).toBe(0);
+    });
+
+    test('projetil nao deve causar dano duplicado em alvo morto por outro projetil', () => {
+      const enemy = new TD.Enemy({ type: 'common' });
+      enemy.x = 105;
+      enemy.y = 100;
+      const firstProjectile = new TD.Projectile({ x: 100, y: 100, target: enemy, damage: 80, speed: 8 });
+      const secondProjectile = new TD.Projectile({ x: 100, y: 100, target: enemy, damage: 80, speed: 8 });
+
+      firstProjectile.update(16);
+      secondProjectile.update(16);
+
+      expect(enemy.health).toBe(0);
+      expect(firstProjectile.hasHit).toBeTruthy();
+      expect(secondProjectile.hasHit).toBeFalsy();
+    });
   });
 })(globalThis);

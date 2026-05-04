@@ -24,10 +24,12 @@
   class Wave {
     constructor({
       number = 1,
-      pathPoints = CONFIG.PATH_POINTS
+      pathPoints = CONFIG.PATH_POINTS,
+      endPadding = 0
     } = {}) {
       this.number = number;
       this.pathPoints = pathPoints;
+      this.endPadding = endPadding;
       this.enemyPlan = createEnemyPlan(number);
       this.totalEnemies = this.enemyPlan.length;
       this.spawnedCount = 0;
@@ -46,7 +48,8 @@
       return new TD.Enemy({
         type,
         pathPoints: this.pathPoints,
-        healthMultiplier: this.healthMultiplier
+        healthMultiplier: this.healthMultiplier,
+        endPadding: this.endPadding
       });
     }
 

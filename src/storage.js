@@ -3,6 +3,8 @@
   const { CONFIG } = TD;
   const LEGACY_KEYS = CONFIG.STORAGE_KEYS;
   const LAST_THEME_KEY = 'towerDefender.lastTheme';
+  const ACTIVE_GAME_KEY = 'towerDefender.activeGame';
+  const ACTIVE_GAME_VERSION = 1;
 
   function normalizeThemeId(themeId) {
     return TD.getThemeById ? TD.getThemeById(themeId).id : (themeId || 'futuristic');
@@ -98,6 +100,54 @@
     }
   }
 
+  function saveActiveGame(snapshot) {
+    if (!snapshot || typeof snapshot !== 'object') {
+      return false;
+    }
+
+    try {
+      global.localStorage.setItem(ACTIVE_GAME_KEY, JSON.stringify({
+        ...snapshot,
+        version: ACTIVE_GAME_VERSION,
+        savedAt: Date.now()
+      }));
+    } catch (error) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function getActiveGame() {
+    try {
+      const rawSnapshot = global.localStorage.getItem(ACTIVE_GAME_KEY);
+
+      if (!rawSnapshot) {
+        return null;
+      }
+
+      const snapshot = JSON.parse(rawSnapshot);
+
+      if (!snapshot || snapshot.version !== ACTIVE_GAME_VERSION || snapshot.appMode !== 'playing') {
+        return null;
+      }
+
+      return snapshot;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function clearActiveGame() {
+    try {
+      global.localStorage.removeItem(ACTIVE_GAME_KEY);
+    } catch (error) {
+      return false;
+    }
+
+    return true;
+  }
+
   TD.Storage = {
     getBestScore,
     setBestScore,
@@ -106,6 +156,9 @@
     getRecords,
     saveRecords,
     getLastTheme,
-    setLastTheme
+    setLastTheme,
+    saveActiveGame,
+    getActiveGame,
+    clearActiveGame
   };
 })(globalThis);

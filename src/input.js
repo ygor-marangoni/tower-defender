@@ -1,6 +1,24 @@
 (function inputModule(global) {
   const TD = global.TowerDefender = global.TowerDefender || {};
   const { CONFIG } = TD;
+  const TOWER_SHORTCUTS = {
+    q: 'basic',
+    w: 'rapid',
+    e: 'heavy'
+  };
+
+  function isEditableTarget(target) {
+    if (!target || typeof target !== 'object') {
+      return false;
+    }
+
+    if (target.isContentEditable) {
+      return true;
+    }
+
+    const tagName = typeof target.tagName === 'string' ? target.tagName.toLowerCase() : '';
+    return tagName === 'input' || tagName === 'textarea' || tagName === 'select';
+  }
 
   class InputController {
     constructor(canvas, game) {
@@ -59,8 +77,47 @@
     }
 
     handleKeyDown(event) {
-      if (event.key === 'Escape') {
+      if (!this.game || isEditableTarget(event.target) || event.repeat || event.altKey || event.ctrlKey || event.metaKey) {
+        return;
+      }
+
+      const key = String(event.key || '').toLowerCase();
+
+      if (key === 'escape') {
+        if (this.game.appMode !== 'playing') {
+          return;
+        }
+
+        event.preventDefault();
         this.game.cancelSelection();
+        return;
+      }
+
+      if (this.game.appMode !== 'playing') {
+        return;
+      }
+
+      if (TOWER_SHORTCUTS[key]) {
+        event.preventDefault();
+        this.game.selectTowerType(TOWER_SHORTCUTS[key]);
+        return;
+      }
+
+      if (key === ' ' || key === 'spacebar') {
+        event.preventDefault();
+        this.game.startWave();
+        return;
+      }
+
+      if (key === 'r') {
+        event.preventDefault();
+        this.game.upgradeSelectedTower();
+        return;
+      }
+
+      if (key === 'v') {
+        event.preventDefault();
+        this.game.sellSelectedTower();
       }
     }
   }

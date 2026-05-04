@@ -5,16 +5,16 @@
   const DEFAULT_THEME_ID = 'futuristic';
   const FUTURISTIC_PATH = (CONFIG.PATH_POINTS || []).map((point) => ({ ...point }));
   const FUTURISTIC_MOBILE_PATH = [
-    { x: 240, y: -46 },
-    { x: 240, y: 104 },
-    { x: 104, y: 104 },
-    { x: 104, y: 270 },
-    { x: 348, y: 270 },
-    { x: 348, y: 430 },
-    { x: 156, y: 430 },
-    { x: 156, y: 604 },
-    { x: 240, y: 604 },
-    { x: 240, y: 846 }
+    { x: 320, y: -44 },
+    { x: 320, y: 94 },
+    { x: 158, y: 94 },
+    { x: 158, y: 258 },
+    { x: 502, y: 258 },
+    { x: 502, y: 420 },
+    { x: 210, y: 420 },
+    { x: 210, y: 600 },
+    { x: 346, y: 600 },
+    { x: 346, y: 808 }
   ];
   const MEDIEVAL_PATH = [
     { x: -40, y: 430 },
@@ -26,19 +26,19 @@
     { x: 750, y: 170 },
     { x: 1025, y: 170 },
     { x: 1025, y: 320 },
-    { x: 1245, y: 320 }
+    { x: 1218, y: 320 }
   ];
   const MEDIEVAL_MOBILE_PATH = [
-    { x: 124, y: -46 },
-    { x: 124, y: 114 },
-    { x: 340, y: 114 },
-    { x: 340, y: 276 },
-    { x: 180, y: 276 },
-    { x: 180, y: 442 },
-    { x: 372, y: 442 },
-    { x: 372, y: 616 },
-    { x: 240, y: 616 },
-    { x: 240, y: 846 }
+    { x: 166, y: -44 },
+    { x: 166, y: 100 },
+    { x: 490, y: 100 },
+    { x: 490, y: 270 },
+    { x: 222, y: 270 },
+    { x: 222, y: 432 },
+    { x: 520, y: 432 },
+    { x: 520, y: 604 },
+    { x: 340, y: 604 },
+    { x: 340, y: 804 }
   ];
 
   const THEMES = {
@@ -74,10 +74,25 @@
         changeMode: 'Trocar modo',
         selected: 'Seleção',
         towers: 'Torres',
+        selectedPlacedTower: 'Torre selecionada',
+        sellAction: 'Vender torre',
+        sellValue: 'Venda',
+        refundCurrency: 'creditos',
+        level: 'Nivel',
+        damage: 'Dano',
+        rangeStat: 'Alcance',
+        cooldownStat: 'Cadencia',
+        selectedTowerEmpty: 'Clique em uma torre posicionada para ver acoes.',
         route: 'Rota de ataque',
         gameOverTitle: 'Núcleo comprometido',
         gameOverText: 'As unidades inimigas atravessaram a defesa.',
         tryAgain: 'Tentar novamente'
+      },
+      sellEffect: {
+        style: 'digital',
+        color: '#38BDF8',
+        accent: '#2DD4BF',
+        textColor: '#E0F2FE'
       },
       towers: {
         basic: { name: 'Canhão de Pulso', description: 'Equilibrada e precisa.', icon: 'target' },
@@ -85,15 +100,40 @@
         heavy: { name: 'Lança Plasma', description: 'Dano alto à distância.', icon: 'bomb' }
       },
       enemies: {
-        common: { name: 'Drone' },
-        fast: { name: 'Interceptor' },
-        tank: { name: 'Blindado' }
+        common: {
+          name: 'Drone Vigia',
+          renderer: 'droneVigia',
+          color: '#2B1710',
+          accent: '#F97316',
+          glow: '#FACC15',
+          deathEffect: 'energyBurst'
+        },
+        fast: {
+          name: 'Sonda Cortante',
+          renderer: 'sondaCortante',
+          color: '#2A100D',
+          accent: '#EF4444',
+          glow: '#FB923C',
+          deathEffect: 'disintegrate'
+        },
+        tank: {
+          name: 'Colosso Blindado',
+          renderer: 'colossoBlindado',
+          color: '#2B1A14',
+          accent: '#F59E0B',
+          glow: '#EF4444',
+          deathEffect: 'heavyExplosion'
+        }
       },
       instructions: [
         'Escolha uma torre e clique fora da rota para posicionar.',
         'ESC cancela a seleção.',
         'Torres priorizam inimigos mais próximos do núcleo.'
       ],
+      baseHitInset: {
+        desktop: 116,
+        mobile: 118
+      },
       path: FUTURISTIC_PATH,
       responsivePaths: {
         mobile: FUTURISTIC_MOBILE_PATH
@@ -133,26 +173,66 @@
         changeMode: 'Trocar modo',
         selected: 'Seleção',
         towers: 'Defesas',
+        selectedPlacedTower: 'Defesa selecionada',
+        sellAction: 'Vender defesa',
+        sellValue: 'Venda',
+        refundCurrency: 'ouro',
+        level: 'Nivel',
+        damage: 'Dano',
+        rangeStat: 'Alcance',
+        cooldownStat: 'Cadencia',
+        selectedTowerEmpty: 'Clique em uma defesa posicionada para ver acoes.',
         route: 'Estrada do cerco',
         gameOverTitle: 'O castelo caiu',
         gameOverText: 'Os invasores romperam as defesas do reino.',
         tryAgain: 'Tentar novamente'
       },
+      sellEffect: {
+        style: 'dust',
+        color: '#D8B35A',
+        accent: '#8A6238',
+        textColor: '#F3EAD7'
+      },
       towers: {
-        basic: { name: 'Torre de Arqueiros', description: 'Flechas precisas.', icon: 'castle' },
-        rapid: { name: 'Besteiros', description: 'Disparos rápidos.', icon: 'crosshair' },
-        heavy: { name: 'Canhão Real', description: 'Impacto pesado.', icon: 'flame' }
+        basic: { name: 'Torre de Arqueiro', description: 'Equilibrada.', icon: 'castle' },
+        rapid: { name: 'Besta', description: 'Disparo veloz.', icon: 'crosshair' },
+        heavy: { name: 'Canhão Real', description: 'Dano pesado.', icon: 'flame' }
       },
       enemies: {
-        common: { name: 'Goblin' },
-        fast: { name: 'Lobo' },
-        tank: { name: 'Ogro' }
+        common: {
+          name: 'Goblin Saqueador',
+          renderer: 'goblinSaqueador',
+          color: '#6CA86E',
+          accent: '#D6A84F',
+          glow: '#A7C77E',
+          deathEffect: 'dustPop'
+        },
+        fast: {
+          name: 'Lobo Sombrio',
+          renderer: 'loboSombrio',
+          color: '#4B5563',
+          accent: '#FBBF24',
+          glow: '#D1D5DB',
+          deathEffect: 'rollDust'
+        },
+        tank: {
+          name: 'Ogro de Cerco',
+          renderer: 'ogroDeCerco',
+          color: '#7A5C3A',
+          accent: '#B94A48',
+          glow: '#D6A84F',
+          deathEffect: 'heavyDust'
+        }
       },
       instructions: [
         'Escolha uma defesa e clique fora da estrada para posicionar.',
         'ESC cancela a seleção.',
         'As defesas priorizam invasores mais próximos do castelo.'
       ],
+      baseHitInset: {
+        desktop: 74,
+        mobile: 76
+      },
       path: MEDIEVAL_PATH,
       responsivePaths: {
         mobile: MEDIEVAL_MOBILE_PATH
@@ -188,6 +268,16 @@
     return theme.enemies[enemyType] || theme.enemies.common;
   }
 
+  function getThemeBaseHitInset(themeId, layout = 'desktop') {
+    const theme = getThemeById(themeId);
+
+    if (!theme.baseHitInset) {
+      return 0;
+    }
+
+    return theme.baseHitInset[layout] ?? theme.baseHitInset.desktop ?? 0;
+  }
+
   TD.DEFAULT_THEME_ID = DEFAULT_THEME_ID;
   TD.THEMES = THEMES;
   TD.FUTURISTIC_PATH = FUTURISTIC_PATH;
@@ -199,4 +289,5 @@
   TD.getThemeLabels = getThemeLabels;
   TD.getThemeTowerInfo = getThemeTowerInfo;
   TD.getThemeEnemyInfo = getThemeEnemyInfo;
+  TD.getThemeBaseHitInset = getThemeBaseHitInset;
 })(globalThis);
