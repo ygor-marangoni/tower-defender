@@ -552,7 +552,6 @@ h1 {
 .board-card {
   position: relative;
   overflow: hidden;
-  min-height: 620px;
   border-radius: 22px;
   padding: 20px;
 }
@@ -640,7 +639,6 @@ canvas {
 .control-panel {
   position: sticky;
   top: 16px;
-  min-height: 620px;
   border-radius: 22px;
   padding: 14px;
   overflow: visible;
@@ -753,6 +751,11 @@ canvas {
   color: var(--muted-2);
   font-size: 0.78rem;
   line-height: 1.35;
+}
+
+.upgrade-panel {
+  display: grid;
+  gap: 12px;
 }
 
 /* 8. Tower cards */
@@ -902,6 +905,126 @@ canvas {
   line-height: 1.35;
 }
 
+.theme-medieval .tower-card {
+  --medieval-card-accent: #d6a84f;
+  --medieval-card-accent-dark: #a87b29;
+  --medieval-card-surface: color-mix(in srgb, var(--panel-2) 82%, #2a2118 18%);
+  grid-template-columns: 58px 1fr;
+  gap: 15px;
+  padding: 14px 15px 14px 13px;
+  border-color: color-mix(in srgb, var(--medieval-card-accent) 22%, var(--border));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--medieval-card-accent) 7%, transparent), transparent 54%),
+    linear-gradient(180deg, rgba(255, 244, 214, 0.045), transparent 64%),
+    var(--medieval-card-surface);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 214, 0.06),
+    0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.theme-medieval .tower-card::before {
+  width: 3px;
+  background: linear-gradient(180deg, var(--medieval-card-accent), var(--medieval-card-accent-dark));
+  opacity: 0.82;
+}
+
+.theme-medieval .tower-card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(231, 216, 182, 0.035), transparent 30%),
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--medieval-card-accent) 12%, transparent), transparent 44%);
+  pointer-events: none;
+}
+
+.theme-medieval .tower-card[data-tower="basic"] {
+  --medieval-card-accent: #d6a84f;
+  --medieval-card-accent-dark: #8b7355;
+}
+
+.theme-medieval .tower-card[data-tower="rapid"] {
+  --medieval-card-accent: #8fb877;
+  --medieval-card-accent-dark: #4f6a43;
+}
+
+.theme-medieval .tower-card[data-tower="heavy"] {
+  --medieval-card-accent: #d6a84f;
+  --medieval-card-accent-dark: #8f2e2e;
+}
+
+.theme-medieval .tower-card:hover {
+  border-color: color-mix(in srgb, var(--medieval-card-accent) 58%, var(--border-strong));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--medieval-card-accent) 11%, transparent), transparent 58%),
+    linear-gradient(180deg, rgba(255, 244, 214, 0.065), transparent 64%),
+    color-mix(in srgb, var(--panel-3) 82%, #2f2418 18%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 214, 0.08),
+    0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+.theme-medieval .tower-card.selected {
+  border-color: var(--medieval-card-accent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--medieval-card-accent) 15%, transparent), transparent 62%),
+    linear-gradient(180deg, rgba(255, 244, 214, 0.07), transparent 66%),
+    color-mix(in srgb, var(--panel-2) 76%, #342613 24%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--medieval-card-accent) 28%, transparent),
+    inset 0 1px 0 rgba(255, 244, 214, 0.1),
+    0 12px 26px rgba(0, 0, 0, 0.16);
+}
+
+.theme-medieval .tower-card.unavailable:not(.selected) {
+  opacity: 0.62;
+  filter: saturate(0.72);
+}
+
+.theme-medieval .tower-card.unavailable:not(.selected) .tower-token {
+  filter: grayscale(0.36);
+}
+
+.theme-medieval .tower-title strong {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.theme-medieval .tower-title em {
+  border-color: color-mix(in srgb, var(--medieval-card-accent) 36%, rgba(231, 216, 182, 0.18));
+  background:
+    linear-gradient(180deg, rgba(231, 216, 182, 0.1), rgba(0, 0, 0, 0.08)),
+    rgba(18, 23, 18, 0.66);
+  color: #f3ead7;
+}
+
+.theme-medieval .tower-copy small {
+  color: color-mix(in srgb, var(--muted) 78%, #e7d8b6 22%);
+}
+
+.theme-medieval .tower-token {
+  width: 54px;
+  height: 54px;
+  border-color: color-mix(in srgb, var(--medieval-card-accent) 62%, #5f4d38);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 16%, color-mix(in srgb, var(--medieval-card-accent) 16%, transparent), transparent 58%),
+    linear-gradient(180deg, rgba(231, 216, 182, 0.1), rgba(0, 0, 0, 0.08)),
+    #171f18;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 214, 0.12),
+    0 6px 14px rgba(0, 0, 0, 0.16);
+}
+
+.theme-medieval .tower-token svg.lucide,
+.theme-medieval .tower-token [data-lucide] {
+  width: 22px;
+  height: 22px;
+  opacity: 1;
+  stroke-width: 2;
+}
+
 /* 9. Buttons */
 .button {
   display: inline-flex;
@@ -960,6 +1083,23 @@ canvas {
   border-color: rgba(52, 211, 153, 0.42);
 }
 
+.button-sell {
+  width: 100%;
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--danger);
+}
+
+.button-sell:hover:not(:disabled) {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.42);
+}
+
+.button-sell svg.lucide,
+.button-sell [data-lucide] {
+  color: inherit;
+}
+
 .button:disabled {
   border-color: var(--border);
   background: rgba(255, 255, 255, 0.04);
@@ -995,6 +1135,9 @@ canvas {
 }
 
 .control-panel.is-collapsed .upgrade-panel {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
   order: 4;
   border-bottom: 0;
 }
@@ -1008,7 +1151,8 @@ canvas {
 .control-panel.is-collapsed .sidebar-toggle,
 .control-panel.is-collapsed .tower-card,
 .control-panel.is-collapsed .button-start-wave,
-.control-panel.is-collapsed .button-upgrade {
+.control-panel.is-collapsed .button-upgrade,
+.control-panel.is-collapsed .button-sell {
   width: 48px;
   height: 48px;
   min-height: 48px;
@@ -1033,8 +1177,8 @@ canvas {
 .control-panel.is-collapsed .mini-note,
 .control-panel.is-collapsed .selected-readout,
 .control-panel.is-collapsed .hint,
-.control-panel.is-collapsed .tower-copy,
-.control-panel.is-collapsed .button span {
+ .control-panel.is-collapsed .tower-copy,
+ .control-panel.is-collapsed .button span {
   display: none;
 }
 
@@ -1060,12 +1204,16 @@ canvas {
   border-radius: 12px;
 }
 
-.control-panel.is-collapsed .button-upgrade {
+.control-panel.is-collapsed .button-upgrade,
+.control-panel.is-collapsed .button-sell {
   padding: 0;
+  justify-content: center;
 }
 
 .control-panel.is-collapsed .button-upgrade svg.lucide,
-.control-panel.is-collapsed .button-upgrade [data-lucide] {
+.control-panel.is-collapsed .button-upgrade [data-lucide],
+.control-panel.is-collapsed .button-sell svg.lucide,
+.control-panel.is-collapsed .button-sell [data-lucide] {
   width: 19px;
   height: 19px;
 }
@@ -1161,6 +1309,222 @@ canvas {
   margin-top: 14px;
 }
 
+.card-choice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(3, 6, 10, 0.74);
+  backdrop-filter: blur(10px);
+  opacity: 1;
+  transition: opacity 180ms ease;
+}
+
+.card-choice-overlay.is-hidden {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.card-choice-panel {
+  width: min(1040px, 100%);
+  max-height: min(88vh, 720px);
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 42%),
+    color-mix(in srgb, var(--panel) 94%, black 6%);
+  box-shadow: var(--shadow);
+}
+
+.card-choice-header {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.card-choice-header .eyebrow {
+  color: var(--primary);
+}
+
+.card-choice-header h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: 0;
+}
+
+.card-choice-header p {
+  max-width: 560px;
+  margin: 0 auto;
+  color: var(--muted);
+}
+
+.card-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.upgrade-card {
+  --card-accent: #aeb8c3;
+  --card-accent-soft: rgba(174, 184, 195, 0.12);
+  position: relative;
+  display: grid;
+  min-height: 300px;
+  gap: 12px;
+  align-content: start;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 42%, var(--border));
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--card-accent) 9%, transparent), transparent 48%),
+    color-mix(in srgb, var(--panel-2) 92%, black 8%);
+  color: var(--text);
+  text-align: left;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 34px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.upgrade-card:hover,
+.upgrade-card:focus-visible {
+  border-color: color-mix(in srgb, var(--card-accent) 78%, white 8%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 22px 42px rgba(0, 0, 0, 0.28),
+    0 0 0 1px color-mix(in srgb, var(--card-accent) 20%, transparent);
+  outline: 0;
+  transform: translateY(-2px);
+}
+
+.upgrade-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.upgrade-card-rarity,
+.upgrade-card-category,
+.upgrade-card-action {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.upgrade-card-rarity {
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 42%, transparent);
+  background: color-mix(in srgb, var(--card-accent) 12%, rgba(255, 255, 255, 0.04));
+  color: color-mix(in srgb, var(--card-accent) 82%, white 18%);
+}
+
+.upgrade-card-category {
+  color: var(--muted);
+}
+
+.upgrade-card-icon {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 34%, transparent);
+  border-radius: 8px;
+  background: var(--card-accent-soft);
+  color: var(--card-accent);
+}
+
+.upgrade-card-icon svg.lucide,
+.upgrade-card-icon [data-lucide] {
+  width: 21px;
+  height: 21px;
+}
+
+.upgrade-card strong {
+  color: var(--text);
+  font-size: 1.24rem;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.upgrade-card-description {
+  color: color-mix(in srgb, var(--text) 84%, var(--muted) 16%);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.upgrade-card small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.upgrade-card-action {
+  align-self: end;
+  margin-top: auto;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 40%, transparent);
+  background: color-mix(in srgb, var(--card-accent) 14%, rgba(255, 255, 255, 0.04));
+  color: var(--text);
+}
+
+.upgrade-card.rarity-common {
+  --card-accent: #B8C1CC;
+  --card-accent-soft: rgba(184, 193, 204, 0.1);
+}
+
+.upgrade-card.rarity-rare {
+  --card-accent: #38BDF8;
+  --card-accent-soft: rgba(56, 189, 248, 0.12);
+}
+
+.upgrade-card.rarity-epic {
+  --card-accent: #A78BFA;
+  --card-accent-soft: rgba(167, 139, 250, 0.14);
+}
+
+.theme-medieval .card-choice-panel {
+  border-color: color-mix(in srgb, #d6a84f 34%, var(--border));
+  background:
+    linear-gradient(180deg, rgba(231, 216, 182, 0.075), transparent 46%),
+    color-mix(in srgb, var(--panel) 88%, #2a2118 12%);
+}
+
+.theme-medieval .card-choice-header .eyebrow {
+  color: #d6a84f;
+}
+
+.theme-medieval .upgrade-card.rarity-common {
+  --card-accent: #D6C6A4;
+  --card-accent-soft: rgba(214, 198, 164, 0.1);
+}
+
+.theme-medieval .upgrade-card.rarity-rare {
+  --card-accent: #D6A84F;
+  --card-accent-soft: rgba(214, 168, 79, 0.12);
+}
+
+.theme-medieval .upgrade-card.rarity-epic {
+  --card-accent: #B38BFA;
+  --card-accent-soft: rgba(179, 139, 250, 0.14);
+}
+
 /* 11. Responsive */
 @media (max-width: 1120px) {
   .hud {
@@ -1175,12 +1539,15 @@ canvas {
     grid-template-columns: 1fr;
   }
 
+  .board-card {
+    min-height: auto;
+  }
+
   .control-panel {
     position: sticky;
     top: 16px;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    display: block;
+    min-height: auto;
   }
 
   .control-panel:not(.is-collapsed) .sidebar-toggle {
@@ -1250,6 +1617,10 @@ canvas {
   }
 
   .control-panel.is-collapsed .upgrade-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
     padding-right: 4px;
   }
 
@@ -1263,7 +1634,8 @@ canvas {
   .control-panel.is-collapsed .sidebar-toggle,
   .control-panel.is-collapsed .tower-card,
   .control-panel.is-collapsed .button-start-wave,
-  .control-panel.is-collapsed .button-upgrade {
+  .control-panel.is-collapsed .button-upgrade,
+  .control-panel.is-collapsed .button-sell {
     flex: 0 0 48px;
     box-shadow:
       0 6px 14px rgba(0, 0, 0, 0.12),
@@ -1288,15 +1660,41 @@ canvas {
     color: var(--text);
   }
 
-  .panel-section {
-    padding: 0;
-    border-bottom: 0;
-  }
 }
 
 @media (max-width: 760px) {
   body {
     padding: 18px;
+  }
+
+  .card-choice-overlay {
+    padding: 14px;
+  }
+
+  .card-choice-panel {
+    max-height: 92vh;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .card-choice-header {
+    margin-bottom: 14px;
+  }
+
+  .card-choice-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .upgrade-card {
+    min-height: auto;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .upgrade-card-icon {
+    width: 38px;
+    height: 38px;
   }
 
   .mode-menu {
@@ -1391,7 +1789,7 @@ canvas {
   canvas {
     width: 100%;
     max-height: none;
-    aspect-ratio: 3 / 5;
+    aspect-ratio: 16 / 19;
   }
 
   .control-panel {
@@ -1416,7 +1814,7 @@ canvas {
 
   .board-card {
     min-height: auto;
-    padding: 14px;
+    padding: 12px 8px;
   }
 
   .board-card,
@@ -1428,6 +1826,7 @@ canvas {
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
+    padding-left: 6px;
     padding-right: 52px;
   }
 
@@ -1489,8 +1888,8 @@ canvas {
   }
 
   .game-app.board-focus-active canvas {
-    aspect-ratio: 3 / 5;
-    width: min(100%, calc(60dvh - 90px));
+    aspect-ratio: 16 / 19;
+    width: min(100vw, calc(84.2dvh - 126px));
     height: auto;
     max-width: 100%;
     border-radius: 0;
@@ -1498,62 +1897,112 @@ canvas {
 
   .game-app.board-focus-active .board-focus-hud {
     position: fixed;
-    right: 18px;
-    bottom: calc(88px + env(safe-area-inset-bottom));
-    left: 18px;
+    right: auto;
+    bottom: calc(96px + env(safe-area-inset-bottom));
+    left: 50%;
     z-index: 88;
     display: grid;
-    width: auto;
+    width: min(calc(100vw - 22px), 460px);
+    max-width: calc(100vw - 22px);
+    margin: 0;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
     pointer-events: none;
+    transform: translateX(-50%);
   }
 
   .board-focus-stat {
+    --focus-accent: rgba(230, 237, 243, 0.6);
+    position: relative;
+    overflow: hidden;
     display: grid;
     min-width: 0;
-    gap: 3px;
+    gap: 4px;
     padding: 8px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    background: rgba(8, 13, 20, 0.92);
+    border: 1px solid color-mix(in srgb, var(--focus-accent) 18%, rgba(255, 255, 255, 0.08));
+    border-radius: 16px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.015) 52%, rgba(255, 255, 255, 0) 100%),
+      color-mix(in srgb, var(--panel) 88%, black 12%);
     box-shadow:
-      0 10px 24px rgba(0, 0, 0, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      0 14px 28px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(12px);
+  }
+
+  .board-focus-stat::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px auto;
+    height: 46%;
+    border-radius: 15px 15px 12px 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 80%);
+    pointer-events: none;
+  }
+
+  .board-focus-stat::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 0;
+    height: 2px;
+    border-radius: 999px 999px 0 0;
+    background: color-mix(in srgb, var(--focus-accent) 78%, transparent);
+    opacity: 0.82;
   }
 
   .board-focus-stat span {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: 0;
+    width: 24px;
+    height: 24px;
     min-width: 0;
-    color: var(--muted);
-    font-size: 0.58rem;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--focus-accent) 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--focus-accent) 10%, rgba(255, 255, 255, 0.02));
+    color: color-mix(in srgb, var(--text) 26%, var(--muted) 74%);
+    font-size: 0.56rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
     line-height: 1.25;
     text-transform: uppercase;
   }
 
   .board-focus-stat small {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.25;
-    white-space: nowrap;
+    display: none;
   }
 
   .board-focus-stat svg.lucide,
   .board-focus-stat [data-lucide] {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
     flex: 0 0 auto;
   }
 
   .board-focus-stat strong {
     color: var(--text);
-    font-size: 1rem;
-    line-height: 1.1;
+    font-size: 1.08rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-left: 4px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .board-focus-stat.danger {
+    --focus-accent: var(--danger);
+  }
+
+  .board-focus-stat.success {
+    --focus-accent: var(--success);
+  }
+
+  .board-focus-stat.primary {
+    --focus-accent: var(--primary);
   }
 
   .board-focus-stat.danger svg,
@@ -1650,7 +2099,8 @@ canvas {
   .control-panel.is-collapsed .sidebar-toggle,
   .control-panel.is-collapsed .tower-card,
   .control-panel.is-collapsed .button-start-wave,
-  .control-panel.is-collapsed .button-upgrade {
+  .control-panel.is-collapsed .button-upgrade,
+  .control-panel.is-collapsed .button-sell {
     flex-basis: 38px;
     width: 38px;
     height: 38px;
@@ -1658,10 +2108,39 @@ canvas {
     border-radius: 12px;
   }
 
+  .control-panel.is-collapsed .upgrade-panel {
+    gap: 8px;
+    padding-right: 0;
+  }
+
   .control-panel.is-collapsed .tower-token {
     width: 28px;
     height: 28px;
     border-radius: 10px;
+  }
+
+  .game-app.board-focus-active .board-focus-hud {
+    right: auto;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+    left: 50%;
+    width: calc(100vw - 28px);
+    max-width: calc(100vw - 28px);
+    gap: 8px;
+  }
+
+  .board-focus-stat {
+    gap: 4px;
+    padding: 8px 10px;
+    border-radius: 15px;
+  }
+
+  .board-focus-stat span {
+    width: 22px;
+    height: 22px;
+  }
+
+  .board-focus-stat strong {
+    font-size: 1rem;
   }
 
   .hud {
@@ -1681,5 +2160,56 @@ canvas {
     width: 34px;
     height: 34px;
     border-radius: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+  .game-app.board-focus-active .board-focus-hud {
+    right: auto;
+    left: 50%;
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+    gap: 6px;
+  }
+
+  .board-focus-stat {
+    gap: 4px;
+    padding: 7px 8px;
+  }
+
+  .board-focus-stat span {
+    width: 21px;
+    height: 21px;
+  }
+
+  .board-focus-stat svg.lucide,
+  .board-focus-stat [data-lucide] {
+    width: 12px;
+    height: 12px;
+  }
+
+  .board-focus-stat strong {
+    font-size: 0.96rem;
+  }
+
+  .control-panel.is-collapsed {
+    padding-left: 8px;
+    padding-right: 8px;
+    gap: 4px;
+  }
+
+  .control-panel.is-collapsed .panel-section {
+    padding: 0 5px;
+    border-right: 0;
+  }
+
+  .control-panel.is-collapsed .selection-panel {
+    padding-left: 0;
+    padding-right: 2px;
+  }
+
+  .control-panel.is-collapsed .sidebar-toggle {
+    flex-basis: 34px;
+    width: 34px;
   }
 }

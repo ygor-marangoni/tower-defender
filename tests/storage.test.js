@@ -57,5 +57,36 @@
       TD.Storage.setLastTheme('unknown');
       expect(TD.Storage.getLastTheme()).toBe('futuristic');
     });
+
+    test('deve salvar e carregar partida ativa', () => {
+      clearStorage();
+
+      const saved = TD.Storage.saveActiveGame({
+        appMode: 'playing',
+        themeId: 'medieval',
+        lives: 12,
+        waveNumber: 4,
+        towers: [{ type: 'basic', x: 120, y: 160 }]
+      });
+      const snapshot = TD.Storage.getActiveGame();
+
+      expect(saved).toBeTruthy();
+      expect(snapshot.themeId).toBe('medieval');
+      expect(snapshot.lives).toBe(12);
+      expect(snapshot.waveNumber).toBe(4);
+      expect(snapshot.towers.length).toBe(1);
+    });
+
+    test('deve limpar partida ativa', () => {
+      clearStorage();
+
+      TD.Storage.saveActiveGame({
+        appMode: 'playing',
+        themeId: 'futuristic'
+      });
+      TD.Storage.clearActiveGame();
+
+      expect(TD.Storage.getActiveGame()).toBe(null);
+    });
   });
 })(globalThis);

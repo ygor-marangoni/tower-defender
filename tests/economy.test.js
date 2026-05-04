@@ -35,5 +35,15 @@
       expect(economy.money).toBe(25);
       expect(economy.score).toBe(250);
     });
+
+    test('refund de venda deve adicionar dinheiro sem afetar score', () => {
+      const economy = new TD.Economy({ initialMoney: 100, initialScore: 80 });
+
+      const money = economy.refundMoney(35);
+
+      expect(money).toBe(135);
+      expect(economy.money).toBe(135);
+      expect(economy.score).toBe(80);
+    });
   });
 })(globalThis);

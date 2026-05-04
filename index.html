@@ -1,320 +1,555 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tower Defender</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="./src/utils.js" defer></script>
-  <script src="./src/config.js" defer></script>
-  <script src="./src/theme.js" defer></script>
-  <script src="./src/path.js" defer></script>
-  <script src="./src/collision.js" defer></script>
-  <script src="./src/enemy.js" defer></script>
-  <script src="./src/projectile.js" defer></script>
-  <script src="./src/tower.js" defer></script>
-  <script src="./src/wave.js" defer></script>
-  <script src="./src/economy.js" defer></script>
-  <script src="./src/storage.js" defer></script>
-  <script src="./src/renderer.js" defer></script>
-  <script src="./src/input.js" defer></script>
-  <script src="./src/game.js" defer></script>
-</head>
-<body class="theme-futuristic">
-  <main class="app-shell">
-    <section class="mode-menu" id="modeMenu" aria-label="Escolha de modo">
-      <div class="mode-hero">
-        <p class="eyebrow">Tower Defender</p>
-        <h1>Escolha seu campo de batalha</h1>
-        <p class="subtitle">Escolha um estilo, posicione suas defesas e sobreviva ao avanço das ondas.</p>
-        <button class="button button-secondary continue-button" id="continueThemeButton" type="button">
-          <i data-lucide="play"></i>
-          <span>Continuar no último modo</span>
-        </button>
-      </div>
-
-      <div class="mode-grid">
-        <article class="mode-card mode-card-futuristic">
-          <div class="mode-card-icon" aria-hidden="true">
-            <i data-lucide="cpu"></i>
-          </div>
-          <p class="section-kicker">Experiência tecnológica</p>
-          <h2>Modo Futurista</h2>
-          <p>Defenda o núcleo com torres de energia, lasers e tecnologia avançada.</p>
-          <ul>
-            <li><i data-lucide="zap"></i> Torres de energia</li>
-            <li><i data-lucide="radar"></i> Inimigos digitais</li>
-            <li><i data-lucide="shield"></i> Mapa tecnológico</li>
-          </ul>
-          <button class="button button-primary" type="button" data-theme-choice="futuristic">
-            <i data-lucide="play"></i>
-            <span>Jogar modo futurista</span>
-          </button>
-        </article>
-
-        <article class="mode-card mode-card-medieval">
-          <div class="mode-card-icon" aria-hidden="true">
-            <i data-lucide="castle"></i>
-          </div>
-          <p class="section-kicker">Fantasia estratégica</p>
-          <h2>Modo Medieval</h2>
-          <p>Proteja o reino com arqueiros, canhões, muralhas e estratégia.</p>
-          <ul>
-            <li><i data-lucide="shield"></i> Torres medievais</li>
-            <li><i data-lucide="swords"></i> Invasores do reino</li>
-            <li><i data-lucide="crown"></i> Estrada de terra</li>
-          </ul>
-          <button class="button button-primary" type="button" data-theme-choice="medieval">
-            <i data-lucide="play"></i>
-            <span>Jogar modo medieval</span>
-          </button>
-        </article>
-      </div>
-    </section>
-
-    <section class="game-app is-hidden" id="gameApp" aria-label="Tower Defender">
-      <header class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Tower Defender · <span id="currentModeName">Futurista</span></p>
-          <h1>Tower Defender</h1>
-          <p class="subtitle" id="heroSubtitle">Defenda o núcleo. Posicione torres. Sobreviva às ondas.</p>
-        </div>
-
-        <div class="hero-actions">
-          <button class="button button-secondary" id="restartButton" type="button" aria-label="Reiniciar jogo">
-            <i data-lucide="rotate-ccw"></i>
-            <span>Reiniciar</span>
-          </button>
-          <button class="button button-secondary" id="changeModeButton" type="button" aria-label="Trocar modo">
-            <i data-lucide="door-open"></i>
-            <span>Trocar modo</span>
-          </button>
-        </div>
-      </header>
-
-      <section class="hud" aria-label="Status do jogo">
-        <article class="hud-card danger">
-          <div class="hud-label">
-            <i data-lucide="heart-pulse"></i>
-            <span data-label-key="life">Vida</span>
-          </div>
-          <strong id="livesValue">20</strong>
-        </article>
-
-        <article class="hud-card success">
-          <div class="hud-label">
-            <i data-lucide="coins"></i>
-            <span data-label-key="money">Créditos</span>
-          </div>
-          <strong id="moneyValue">150</strong>
-        </article>
-
-        <article class="hud-card primary">
-          <div class="hud-label">
-            <i data-lucide="radar"></i>
-            <span data-label-key="wave">Onda</span>
-          </div>
-          <strong id="waveValue">1</strong>
-        </article>
-
-        <article class="hud-card neutral">
-          <div class="hud-label">
-            <i data-lucide="crosshair"></i>
-            <span data-label-key="score">Pontuação</span>
-          </div>
-          <strong id="scoreValue">0</strong>
-        </article>
-
-        <article class="hud-card warning">
-          <div class="hud-label">
-            <i data-lucide="trophy"></i>
-            <span data-label-key="bestScore">Recorde</span>
-          </div>
-          <strong><span id="recordValue">0</span> pts</strong>
-        </article>
-
-        <article class="hud-card neutral">
-          <div class="hud-label">
-            <i data-lucide="crown"></i>
-            <span data-label-key="bestWave">Maior onda</span>
-          </div>
-          <strong id="bestWaveValue">0</strong>
-        </article>
-      </section>
-
-      <main class="game-layout" id="gameLayout">
-        <section class="board-card" aria-label="Arena do jogo">
-          <div class="board-header">
-            <div>
-              <p class="section-kicker">Arena</p>
-              <h2 id="routeTitle">Rota de ataque</h2>
-            </div>
-            <p class="board-tip">
-              <i data-lucide="mouse-pointer-click"></i>
-              <span id="boardTipText">Escolha uma torre e clique fora da rota para posicionar.</span>
-            </p>
-          </div>
-
-          <button
-            class="board-focus-toggle"
-            id="boardFocusButton"
-            type="button"
-            aria-label="Ampliar arena"
-            aria-pressed="false"
-            title="Ampliar arena"
-          >
-            <i data-lucide="maximize-2"></i>
-          </button>
-
-          <div class="canvas-frame">
-            <canvas id="gameCanvas" width="1200" height="540">
-              Seu navegador precisa suportar Canvas para jogar Tower Defender.
-            </canvas>
-
-            <div class="board-focus-hud" aria-label="Status compacto">
-              <article class="board-focus-stat danger">
-                <span>
-                  <i data-lucide="heart-pulse"></i>
-                  <small data-label-key="life">Vida</small>
-                </span>
-                <strong id="focusLivesValue">20</strong>
-              </article>
-
-              <article class="board-focus-stat success">
-                <span>
-                  <i data-lucide="coins"></i>
-                  <small data-label-key="money">Créditos</small>
-                </span>
-                <strong id="focusMoneyValue">150</strong>
-              </article>
-
-              <article class="board-focus-stat primary">
-                <span>
-                  <i data-lucide="radar"></i>
-                  <small data-label-key="wave">Onda</small>
-                </span>
-                <strong id="focusWaveValue">1</strong>
-              </article>
-            </div>
-
-            <div class="game-over hidden" id="gameOverOverlay" role="dialog" aria-modal="true" aria-label="Game Over">
-              <div class="game-over-panel">
-                <span class="game-over-icon" aria-hidden="true">
-                  <i data-lucide="shield-alert"></i>
-                </span>
-                <p class="section-kicker" id="gameOverTitle">Núcleo comprometido</p>
-                <h2>Game Over</h2>
-                <p id="gameOverText">As unidades inimigas atravessaram a defesa.</p>
-                <p>Pontuação final: <strong id="finalScore">0</strong></p>
-                <p>Onda alcançada: <strong id="finalWave">0</strong></p>
-                <div class="game-over-actions">
-                  <button class="button button-primary" type="button" data-restart aria-label="Tentar novamente">
-                    <i data-lucide="rotate-ccw"></i>
-                    <span>Tentar novamente</span>
-                  </button>
-                  <button class="button button-secondary" id="gameOverMenuButton" type="button" data-menu aria-label="Trocar modo">
-                    <i data-lucide="door-open"></i>
-                    <span>Trocar modo</span>
-                  </button>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tower Defender</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="./style.css" />
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script src="./src/utils.js" defer></script>
+        <script src="./src/config.js" defer></script>
+        <script src="./src/theme.js" defer></script>
+        <script src="./src/path.js" defer></script>
+        <script src="./src/collision.js" defer></script>
+        <script src="./src/deck.js" defer></script>
+        <script src="./src/upgrades.js" defer></script>
+        <script src="./src/cardChoice.js" defer></script>
+        <script src="./src/enemy.js" defer></script>
+        <script src="./src/effects.js" defer></script>
+        <script src="./src/projectile.js" defer></script>
+        <script src="./src/tower.js" defer></script>
+        <script src="./src/wave.js" defer></script>
+        <script src="./src/economy.js" defer></script>
+        <script src="./src/storage.js" defer></script>
+        <script src="./src/enemyRenderer.js" defer></script>
+        <script src="./src/renderer.js" defer></script>
+        <script src="./src/input.js" defer></script>
+        <script src="./src/game.js" defer></script>
+    </head>
+    <body class="theme-futuristic">
+        <main class="app-shell">
+            <section
+                class="mode-menu"
+                id="modeMenu"
+                aria-label="Escolha de modo"
+            >
+                <div class="mode-hero">
+                    <p class="eyebrow">Tower Defender</p>
+                    <h1>Escolha seu campo de batalha</h1>
+                    <p class="subtitle">
+                        Escolha um estilo, posicione suas defesas e sobreviva ao
+                        avanço das ondas.
+                    </p>
+                    <button
+                        class="button button-secondary continue-button"
+                        id="continueThemeButton"
+                        type="button"
+                    >
+                        <i data-lucide="play"></i>
+                        <span>Continuar no último modo</span>
+                    </button>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          <p class="feedback" id="feedback" aria-live="polite">
-            <i data-lucide="message-circle" aria-hidden="true"></i>
-            <span id="feedbackText">Escolha uma torre e clique no mapa para posicionar.</span>
-          </p>
-        </section>
+                <div class="mode-grid">
+                    <article class="mode-card mode-card-futuristic">
+                        <div class="mode-card-icon" aria-hidden="true">
+                            <i data-lucide="cpu"></i>
+                        </div>
+                        <p class="section-kicker">Experiência tecnológica</p>
+                        <h2>Modo Futurista</h2>
+                        <p>
+                            Defenda o núcleo com torres de energia, lasers e
+                            tecnologia avançada.
+                        </p>
+                        <ul>
+                            <li><i data-lucide="zap"></i> Torres de energia</li>
+                            <li>
+                                <i data-lucide="radar"></i> Inimigos digitais
+                            </li>
+                            <li>
+                                <i data-lucide="shield"></i> Mapa tecnológico
+                            </li>
+                        </ul>
+                        <button
+                            class="button button-primary"
+                            type="button"
+                            data-theme-choice="futuristic"
+                        >
+                            <i data-lucide="play"></i>
+                            <span>Jogar modo futurista</span>
+                        </button>
+                    </article>
 
-        <aside class="control-panel" id="controlPanel" aria-label="Controles e torres">
-          <section class="panel-section selection-panel">
-            <div class="section-heading">
-              <p class="section-kicker" data-label-key="selected">Seleção</p>
-              <button
-                class="sidebar-toggle"
-                id="toggleSidebarButton"
-                type="button"
-                aria-label="Minimizar painel de controle"
-                aria-expanded="true"
-                title="Minimizar painel"
-              >
-                <i data-lucide="panel-right-close"></i>
-              </button>
-            </div>
-            <strong class="selected-readout" id="selectedValue">Nenhuma</strong>
-            <p class="hint">ESC cancela. Clique em uma defesa posicionada para melhorar.</p>
-          </section>
+                    <article class="mode-card mode-card-medieval">
+                        <div class="mode-card-icon" aria-hidden="true">
+                            <i data-lucide="castle"></i>
+                        </div>
+                        <p class="section-kicker">Fantasia estratégica</p>
+                        <h2>Modo Medieval</h2>
+                        <p>
+                            Proteja o reino com arqueiros, canhões, muralhas e
+                            estratégia.
+                        </p>
+                        <ul>
+                            <li>
+                                <i data-lucide="shield"></i> Torres medievais
+                            </li>
+                            <li>
+                                <i data-lucide="swords"></i> Invasores do reino
+                            </li>
+                            <li>
+                                <i data-lucide="crown"></i> Estrada de terra
+                            </li>
+                        </ul>
+                        <button
+                            class="button button-primary"
+                            type="button"
+                            data-theme-choice="medieval"
+                        >
+                            <i data-lucide="play"></i>
+                            <span>Jogar modo medieval</span>
+                        </button>
+                    </article>
+                </div>
+            </section>
 
-          <section class="panel-section">
-            <div class="section-heading">
-              <p class="section-kicker" id="towerListTitle">Torres</p>
-              <span class="mini-note" id="towerMiniNote">Futurista</span>
-            </div>
+            <section
+                class="game-app is-hidden"
+                id="gameApp"
+                aria-label="Tower Defender"
+            >
+                <header class="hero">
+                    <div class="hero-copy">
+                        <p class="eyebrow">
+                            Tower Defender ·
+                            <span id="currentModeName">Futurista</span>
+                        </p>
+                        <h1>Tower Defender</h1>
+                        <p class="subtitle" id="heroSubtitle">
+                            Defenda o núcleo. Posicione torres. Sobreviva às
+                            ondas.
+                        </p>
+                    </div>
 
-            <div class="tower-list">
-              <button class="tower-card" type="button" data-tower="basic" aria-label="Selecionar torre básica">
-                <span class="tower-token basic" aria-hidden="true">
-                  <i data-lucide="target" data-tower-icon></i>
-                </span>
-                <span class="tower-copy">
-                  <span class="tower-title">
-                    <strong data-tower-name>Canhão de Pulso</strong>
-                    <em>50</em>
-                  </span>
-                  <small data-tower-description="basic">Dano equilibrado e alcance confiável.</small>
-                </span>
-              </button>
+                    <div class="hero-actions">
+                        <button
+                            class="button button-secondary"
+                            id="restartButton"
+                            type="button"
+                            aria-label="Reiniciar jogo"
+                        >
+                            <i data-lucide="rotate-ccw"></i>
+                            <span>Reiniciar</span>
+                        </button>
+                        <button
+                            class="button button-secondary"
+                            id="changeModeButton"
+                            type="button"
+                            aria-label="Trocar modo"
+                        >
+                            <i data-lucide="door-open"></i>
+                            <span>Trocar modo</span>
+                        </button>
+                    </div>
+                </header>
 
-              <button class="tower-card" type="button" data-tower="rapid" aria-label="Selecionar torre rápida">
-                <span class="tower-token rapid" aria-hidden="true">
-                  <i data-lucide="zap" data-tower-icon></i>
-                </span>
-                <span class="tower-copy">
-                  <span class="tower-title">
-                    <strong data-tower-name>Torre Laser</strong>
-                    <em>75</em>
-                  </span>
-                  <small data-tower-description="rapid">Disparos rápidos contra alvos frágeis.</small>
-                </span>
-              </button>
+                <section class="hud" aria-label="Status do jogo">
+                    <article class="hud-card danger">
+                        <div class="hud-label">
+                            <i data-lucide="heart-pulse"></i>
+                            <span data-label-key="life">Vida</span>
+                        </div>
+                        <strong id="livesValue">20</strong>
+                    </article>
 
-              <button class="tower-card" type="button" data-tower="heavy" aria-label="Selecionar torre pesada">
-                <span class="tower-token heavy" aria-hidden="true">
-                  <i data-lucide="bomb" data-tower-icon></i>
-                </span>
-                <span class="tower-copy">
-                  <span class="tower-title">
-                    <strong data-tower-name>Lança Plasma</strong>
-                    <em>120</em>
-                  </span>
-                  <small data-tower-description="heavy">Alto dano e longo alcance.</small>
-                </span>
-              </button>
-            </div>
-          </section>
+                    <article class="hud-card success">
+                        <div class="hud-label">
+                            <i data-lucide="coins"></i>
+                            <span data-label-key="money">Créditos</span>
+                        </div>
+                        <strong id="moneyValue">150</strong>
+                    </article>
 
-          <section class="panel-section action-panel">
-            <button class="button button-primary button-start-wave" id="startWaveButton" type="button" aria-label="Iniciar onda">
-              <i data-lucide="play"></i>
-              <span>Iniciar onda</span>
-            </button>
-          </section>
+                    <article class="hud-card primary">
+                        <div class="hud-label">
+                            <i data-lucide="radar"></i>
+                            <span data-label-key="wave">Onda</span>
+                        </div>
+                        <strong id="waveValue">1</strong>
+                    </article>
 
-          <section class="panel-section upgrade-panel">
-            <button class="button button-upgrade" id="upgradeButton" type="button" disabled aria-label="Melhorar defesa selecionada">
-              <i data-lucide="arrow-up-circle"></i>
-              <span>Melhorar defesa</span>
-            </button>
-          </section>
+                    <article class="hud-card neutral">
+                        <div class="hud-label">
+                            <i data-lucide="crosshair"></i>
+                            <span data-label-key="score">Pontuação</span>
+                        </div>
+                        <strong id="scoreValue">0</strong>
+                    </article>
 
-        </aside>
-      </main>
-    </section>
-  </main>
-</body>
+                    <article class="hud-card warning">
+                        <div class="hud-label">
+                            <i data-lucide="trophy"></i>
+                            <span data-label-key="bestScore">Recorde</span>
+                        </div>
+                        <strong><span id="recordValue">0</span> pts</strong>
+                    </article>
+
+                    <article class="hud-card neutral">
+                        <div class="hud-label">
+                            <i data-lucide="crown"></i>
+                            <span data-label-key="bestWave">Maior onda</span>
+                        </div>
+                        <strong id="bestWaveValue">0</strong>
+                    </article>
+                </section>
+
+                <main class="game-layout" id="gameLayout">
+                    <section class="board-card" aria-label="Arena do jogo">
+                        <div class="board-header">
+                            <div>
+                                <p class="section-kicker">Arena</p>
+                                <h2 id="routeTitle">Rota de ataque</h2>
+                            </div>
+                            <p class="board-tip">
+                                <i data-lucide="mouse-pointer-click"></i>
+                                <span id="boardTipText"
+                                    >Escolha uma torre e clique fora da rota
+                                    para posicionar.</span
+                                >
+                            </p>
+                        </div>
+
+                        <button
+                            class="board-focus-toggle"
+                            id="boardFocusButton"
+                            type="button"
+                            aria-label="Ampliar arena"
+                            aria-pressed="false"
+                            title="Ampliar arena"
+                        >
+                            <i data-lucide="maximize-2"></i>
+                        </button>
+
+                        <div class="canvas-frame">
+                            <canvas id="gameCanvas" width="1200" height="540">
+                                Seu navegador precisa suportar Canvas para jogar
+                                Tower Defender.
+                            </canvas>
+
+                            <div
+                                class="board-focus-hud"
+                                aria-label="Status compacto"
+                            >
+                                <article class="board-focus-stat danger">
+                                    <span>
+                                        <i data-lucide="heart-pulse"></i>
+                                        <small data-label-key="life"
+                                            >Vida</small
+                                        >
+                                    </span>
+                                    <strong id="focusLivesValue">20</strong>
+                                </article>
+
+                                <article class="board-focus-stat success">
+                                    <span>
+                                        <i data-lucide="coins"></i>
+                                        <small data-label-key="money"
+                                            >Créditos</small
+                                        >
+                                    </span>
+                                    <strong id="focusMoneyValue">150</strong>
+                                </article>
+
+                                <article class="board-focus-stat primary">
+                                    <span>
+                                        <i data-lucide="radar"></i>
+                                        <small data-label-key="wave"
+                                            >Onda</small
+                                        >
+                                    </span>
+                                    <strong id="focusWaveValue">1</strong>
+                                </article>
+                            </div>
+
+                            <div
+                                class="game-over hidden"
+                                id="gameOverOverlay"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-label="Game Over"
+                            >
+                                <div class="game-over-panel">
+                                    <span
+                                        class="game-over-icon"
+                                        aria-hidden="true"
+                                    >
+                                        <i data-lucide="shield-alert"></i>
+                                    </span>
+                                    <p
+                                        class="section-kicker"
+                                        id="gameOverTitle"
+                                    >
+                                        Núcleo comprometido
+                                    </p>
+                                    <h2>Game Over</h2>
+                                    <p id="gameOverText">
+                                        As unidades inimigas atravessaram a
+                                        defesa.
+                                    </p>
+                                    <p>
+                                        Pontuação final:
+                                        <strong id="finalScore">0</strong>
+                                    </p>
+                                    <p>
+                                        Onda alcançada:
+                                        <strong id="finalWave">0</strong>
+                                    </p>
+                                    <div class="game-over-actions">
+                                        <button
+                                            class="button button-primary"
+                                            type="button"
+                                            data-restart
+                                            aria-label="Tentar novamente"
+                                        >
+                                            <i data-lucide="rotate-ccw"></i>
+                                            <span>Tentar novamente</span>
+                                        </button>
+                                        <button
+                                            class="button button-secondary"
+                                            id="gameOverMenuButton"
+                                            type="button"
+                                            data-menu
+                                            aria-label="Trocar modo"
+                                        >
+                                            <i data-lucide="door-open"></i>
+                                            <span>Trocar modo</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <section
+                                class="card-choice-overlay is-hidden"
+                                id="cardChoiceOverlay"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-hidden="true"
+                                aria-labelledby="cardChoiceTitle"
+                            >
+                                <div class="card-choice-panel">
+                                    <div class="card-choice-header">
+                                        <span class="eyebrow"
+                                            >Melhoria desbloqueada</span
+                                        >
+                                        <h2 id="cardChoiceTitle">
+                                            Escolha uma melhoria
+                                        </h2>
+                                        <p id="cardChoiceSubtitle">
+                                            Escolha uma carta para fortalecer
+                                            sua defesa.
+                                        </p>
+                                    </div>
+
+                                    <div
+                                        class="card-choice-grid"
+                                        id="cardChoiceGrid"
+                                    ></div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <p class="feedback" id="feedback" aria-live="polite">
+                            <i
+                                data-lucide="message-circle"
+                                aria-hidden="true"
+                            ></i>
+                            <span id="feedbackText"
+                                >Escolha uma torre e clique no mapa para
+                                posicionar.</span
+                            >
+                        </p>
+                    </section>
+
+                    <aside
+                        class="control-panel"
+                        id="controlPanel"
+                        aria-label="Controles e torres"
+                    >
+                        <section class="panel-section selection-panel">
+                            <div class="section-heading">
+                                <p
+                                    class="section-kicker"
+                                    data-label-key="selected"
+                                >
+                                    Seleção
+                                </p>
+                                <button
+                                    class="sidebar-toggle"
+                                    id="toggleSidebarButton"
+                                    type="button"
+                                    aria-label="Minimizar painel de controle"
+                                    aria-expanded="true"
+                                    title="Minimizar painel"
+                                >
+                                    <i data-lucide="panel-right-close"></i>
+                                </button>
+                            </div>
+                            <strong class="selected-readout" id="selectedValue"
+                                >Nenhuma</strong
+                            >
+                            <p class="hint">
+                                ESC cancela. Clique em uma defesa posicionada
+                                para melhorar.
+                            </p>
+                        </section>
+
+                        <section class="panel-section">
+                            <div class="section-heading">
+                                <p class="section-kicker" id="towerListTitle">
+                                    Torres
+                                </p>
+                                <span class="mini-note" id="towerMiniNote"
+                                    >Futurista</span
+                                >
+                            </div>
+
+                            <div class="tower-list">
+                                <button
+                                    class="tower-card"
+                                    type="button"
+                                    data-tower="basic"
+                                    aria-label="Selecionar torre básica"
+                                >
+                                    <span
+                                        class="tower-token basic"
+                                        aria-hidden="true"
+                                    >
+                                        <i
+                                            data-lucide="target"
+                                            data-tower-icon
+                                        ></i>
+                                    </span>
+                                    <span class="tower-copy">
+                                        <span class="tower-title">
+                                            <strong data-tower-name
+                                                >Canhão de Pulso</strong
+                                            >
+                                            <em>50</em>
+                                        </span>
+                                        <small data-tower-description="basic"
+                                            >Dano equilibrado e alcance
+                                            confiável.</small
+                                        >
+                                    </span>
+                                </button>
+
+                                <button
+                                    class="tower-card"
+                                    type="button"
+                                    data-tower="rapid"
+                                    aria-label="Selecionar torre rápida"
+                                >
+                                    <span
+                                        class="tower-token rapid"
+                                        aria-hidden="true"
+                                    >
+                                        <i
+                                            data-lucide="zap"
+                                            data-tower-icon
+                                        ></i>
+                                    </span>
+                                    <span class="tower-copy">
+                                        <span class="tower-title">
+                                            <strong data-tower-name
+                                                >Torre Laser</strong
+                                            >
+                                            <em>75</em>
+                                        </span>
+                                        <small data-tower-description="rapid"
+                                            >Disparos rápidos contra alvos
+                                            frágeis.</small
+                                        >
+                                    </span>
+                                </button>
+
+                                <button
+                                    class="tower-card"
+                                    type="button"
+                                    data-tower="heavy"
+                                    aria-label="Selecionar torre pesada"
+                                >
+                                    <span
+                                        class="tower-token heavy"
+                                        aria-hidden="true"
+                                    >
+                                        <i
+                                            data-lucide="bomb"
+                                            data-tower-icon
+                                        ></i>
+                                    </span>
+                                    <span class="tower-copy">
+                                        <span class="tower-title">
+                                            <strong data-tower-name
+                                                >Lança Plasma</strong
+                                            >
+                                            <em>120</em>
+                                        </span>
+                                        <small data-tower-description="heavy"
+                                            >Alto dano e longo alcance.</small
+                                        >
+                                    </span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <section class="panel-section action-panel">
+                            <button
+                                class="button button-primary button-start-wave"
+                                id="startWaveButton"
+                                type="button"
+                                aria-label="Iniciar onda (Espaço)"
+                                title="Iniciar onda (Espaço)"
+                            >
+                                <i data-lucide="play"></i>
+                                <span>Iniciar onda</span>
+                            </button>
+                        </section>
+
+                        <section class="panel-section upgrade-panel">
+                            <button
+                                class="button button-upgrade"
+                                id="upgradeButton"
+                                type="button"
+                                disabled
+                                aria-label="Melhorar defesa selecionada"
+                            >
+                                <i data-lucide="arrow-up-circle"></i>
+                                <span>Melhorar defesa</span>
+                            </button>
+
+                            <button
+                                class="button button-sell"
+                                id="sellTowerButton"
+                                type="button"
+                                disabled
+                                aria-label="Vender defesa selecionada"
+                            >
+                                <i
+                                    data-lucide="arrow-down-circle"
+                                    class="sell-icon"
+                                ></i>
+                                <span>Vender defesa</span>
+                            </button>
+                        </section>
+                    </aside>
+                </main>
+            </section>
+        </main>
+    </body>
 </html>

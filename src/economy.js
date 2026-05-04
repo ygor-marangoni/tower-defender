@@ -29,24 +29,35 @@
       return this.money;
     }
 
+    refundMoney(amount) {
+      if (!Number.isFinite(amount) || amount < 0) {
+        return this.money;
+      }
+
+      return this.addMoney(amount);
+    }
+
     addScore(amount) {
       this.score += amount;
       return this.score;
     }
 
-    buyTower(type) {
+    buyTower(type, upgrades = null) {
       const towerType = TOWER_TYPES[type];
 
       if (!towerType) {
         return false;
       }
 
-      return this.spend(towerType.cost);
+      const cost = TD.getEffectiveTowerCost ? TD.getEffectiveTowerCost(type, upgrades) : towerType.cost;
+      return this.spend(cost);
     }
 
-    rewardEnemy(enemy) {
-      this.addMoney(enemy.reward);
-      this.addScore(enemy.reward * 10);
+    rewardEnemy(enemy, upgrades = null) {
+      const reward = TD.getEffectiveEnemyReward ? TD.getEffectiveEnemyReward(enemy, upgrades) : enemy.reward;
+
+      this.addMoney(reward);
+      this.addScore(reward * 10);
     }
   }
 

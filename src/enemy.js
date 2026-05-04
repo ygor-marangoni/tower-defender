@@ -1,12 +1,14 @@
 (function enemyModule(global) {
   const TD = global.TowerDefender = global.TowerDefender || {};
   const { CONFIG, ENEMY_TYPES } = TD;
+  const HIT_FLASH_DURATION = 150;
 
   class Enemy {
     constructor({
       type = 'common',
       pathPoints = CONFIG.PATH_POINTS,
-      healthMultiplier = 1
+      healthMultiplier = 1,
+      endPadding = 0
     } = {}) {
       const stats = ENEMY_TYPES[type] || ENEMY_TYPES.common;
 
@@ -25,7 +27,12 @@
       this.distanceTravelled = 0;
       this.progress = 0;
       this.reachedEnd = false;
+      this.endPadding = Math.max(0, endPadding);
+      this.totalPathLength = TD.Path.getTotalLength(this.pathPoints);
+      this.endDistance = Math.max(0, this.totalPathLength - this.endPadding);
       this.markedForReward = false;
+      this.animationOffset = Math.random() * Math.PI * 2;
+      this.hitTimer = 0;
 
       const start = TD.Path.getPointAtDistance(0, this.pathPoints);
       this.x = start.x;
@@ -34,15 +41,16 @@
     }
 
     update(deltaMs) {
+      this.hitTimer = Math.max(0, this.hitTimer - deltaMs);
+
       if (this.isDead() || this.reachedEnd) {
         return;
       }
 
-      const totalLength = TD.Path.getTotalLength(this.pathPoints);
       this.distanceTravelled += this.speed * (deltaMs / 16.6667);
 
-      if (this.distanceTravelled >= totalLength) {
-        this.distanceTravelled = totalLength;
+      if (this.distanceTravelled >= this.endDistance) {
+        this.distanceTravelled = this.endDistance;
         this.reachedEnd = true;
       }
 
@@ -54,6 +62,10 @@
     }
 
     takeDamage(amount) {
+      if (amount > 0 && !this.isDead()) {
+        this.hitTimer = HIT_FLASH_DURATION;
+      }
+
       this.health = TD.Utils.clamp(this.health - amount, 0, this.maxHealth);
       return this.isDead();
     }

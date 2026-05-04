@@ -55,11 +55,18 @@
       expect(state.labels.wave).toBe('Cerco');
     });
 
-    test('seleção visual de torres deve preservar tipos internos', () => {
+    test('selecao visual de torres deve preservar tipos internos', () => {
       const state = TD.createInitialGameState('medieval');
 
       expect(Object.keys(state.towerInfo).join(',')).toBe('basic,rapid,heavy');
-      expect(state.towerInfo.basic.name).toBe('Torre de Arqueiros');
+      expect(state.towerInfo.basic.name).toBe('Torre de Arqueiro');
+    });
+
+    test('estado inicial deve iniciar sem selecao de construcao ou de torre posicionada', () => {
+      const state = TD.createInitialGameState('futuristic');
+
+      expect(state.selectedTowerType).toBe(null);
+      expect(state.selectedPlacedTower).toBe(null);
     });
   });
 })(globalThis);

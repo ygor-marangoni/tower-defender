@@ -26,5 +26,12 @@
 
       expect(wave.isFinished([])).toBeTruthy();
     });
+
+    test('onda deve repassar recuo final do castelo para cada inimigo', () => {
+      const wave = new TD.Wave({ number: 1, endPadding: 74 });
+      const enemy = wave.createEnemy('common');
+
+      expect(enemy.endPadding).toBe(74);
+    });
   });
 })(globalThis);

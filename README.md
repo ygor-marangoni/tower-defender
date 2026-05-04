@@ -16,6 +16,22 @@ Defenda um núcleo tecnológico contra drones e unidades digitais. O mapa usa um
 
 Proteja o castelo contra invasores em uma estrada de cerco. O modo usa paleta medieval, defesas temáticas, base em castelo de pedra e decorações no mapa.
 
+## Inimigos por Tema
+
+Todos os inimigos são desenhados diretamente com Canvas API, sem imagens externas, spritesheets ou bibliotecas de animação.
+
+### Futurista
+
+- Drone Vigia: inimigo comum com corpo tecnológico, lente ciano, motores laterais e flutuação sutil.
+- Sonda Cortante: inimigo rápido em formato de dardo, com rastro energético e movimento agressivo.
+- Colosso Blindado: inimigo tanque com placas de armadura, núcleo pulsante e explosão pesada.
+
+### Medieval
+
+- Goblin Saqueador: inimigo comum pequeno, com cabeça verde, orelhas pontudas e arma simples.
+- Lobo Sombrio: inimigo rápido de silhueta alongada, patas animadas, cauda e olhos brilhantes.
+- Ogro de Cerco: inimigo tanque largo e pesado, com clava, passo forte e poeira no impacto.
+
 ## Recursos
 
 - Gameplay completo de tower defense em Canvas.
@@ -27,9 +43,68 @@ Proteja o castelo contra invasores em uma estrada de cerco. O modo usa paleta me
 - HUD compacto no modo foco com vida, créditos/ouro e onda/cerco.
 - Posicionamento de torres com validação de rota, bordas e colisão.
 - Upgrades de torres durante a partida.
+- Venda de torres com reembolso de 70% do total investido.
+- Sistema roguelite de cartas de upgrade a cada 3 ondas concluidas.
+- Cartas com raridades common, rare e epic, textos por tema e efeitos reais no gameplay.
+- Inimigos personalizados por tema, com animação de movimento, dano e morte.
 - Ondas progressivas com inimigos comuns, rápidos e tanques.
 - Recordes separados por modo usando LocalStorage.
 - Test runner próprio, sem dependências externas de teste.
+
+## Venda de torres
+
+- Clique em uma torre posicionada para seleciona-la.
+- O painel lateral mostra os dados da torre e o valor de venda.
+- Vender devolve `70%` do valor investido usando `Math.floor`.
+- O calculo considera o custo inicial e upgrades ja aplicados.
+- A venda funciona nos modos Futurista e Medieval.
+- A venda pode ser feita durante uma onda ativa.
+- Depois da venda, a torre sai do mapa, o dinheiro atualiza imediatamente e a selecao e limpa.
+
+## Sistema de cartas
+
+A cada 3 ondas concluidas, a partida pausa e abre uma escolha com 3 cartas aleatorias. O jogador escolhe apenas 1 carta, o efeito e aplicado imediatamente e a partida volta ao fluxo normal.
+
+O gatilho acontece depois das ondas 3, 6, 9, 12 e assim por diante. A mesma onda nao abre a escolha duas vezes.
+
+As cartas sao universais, mas o texto muda conforme o tema. No modo Futurista elas aparecem como protocolos, calibracoes e sistemas. No modo Medieval elas aparecem como bencaos, contratos, treinamento e reforcos do reino.
+
+Categorias:
+
+- Ataque: aumenta dano, alcance ou velocidade de disparo.
+- Economia: melhora recompensas, custo de construcao, venda ou concede recursos imediatos.
+- Defesa: adiciona vida, repara a base ou fortalece a defesa em situacoes criticas.
+- Especializacao: melhora torres basic, rapid ou heavy.
+- Utilidade: melhora alcance visual, torres ja posicionadas ou bonus por onda perfeita.
+
+Raridades:
+
+- common: cartas frequentes e moderadas.
+- rare: cartas mais fortes e focadas.
+- epic: cartas de impacto alto e mais raras.
+
+Cartas iniciais:
+
+- Projeteis Otimizados / Pontas Afiadas
+- Sensor Expandido / Vigias Altas
+- Recarga Acelerada / Maos Treinadas
+- Nucleo Critico / Golpe Preciso
+- Arsenal Sobrecarregado / Arsenal Real
+- Protocolo de Recompensa / Cacadores de Recompensa
+- Creditos Emergenciais / Tesouro do Reino
+- Construcao Eficiente / Maos de Obra Local
+- Contrato Logistico / Contrato Mercante
+- Extracao de Dados / Saque de Guerra
+- Blindagem do Nucleo / Muralhas Reforcadas
+- Protocolo Ultima Linha / Ultima Muralha
+- Drones de Reparo / Curandeiros do Reino
+- Calibracao do Canhao / Treinamento dos Arqueiros
+- Laser Sequencial / Mecanismo da Besta
+- Plasma Pesado / Mestre de Cerco
+- Engenheiro de Campo / Engenheiro Real
+- Visao Tatica / Olhos da Fortaleza
+- Unidades Veteranas / Defensores Veteranos
+- Execucao Perfeita / Defesa Impecavel.
 
 ## Como Jogar
 
@@ -38,8 +113,9 @@ Proteja o castelo contra invasores em uma estrada de cerco. O modo usa paleta me
 3. Selecione uma torre/defesa.
 4. Clique ou toque fora da rota para posicionar.
 5. Inicie a onda.
-6. Selecione torres posicionadas para melhorar.
-7. Sobreviva e tente bater o recorde.
+6. Selecione torres posicionadas para melhorar ou vender.
+7. A cada 3 ondas concluidas, escolha uma carta de upgrade.
+8. Sobreviva e tente bater o recorde.
 
 No teclado, use `ESC` para cancelar a seleção atual.
 
@@ -91,7 +167,11 @@ A suíte cobre:
 - economia;
 - ondas;
 - inimigos;
+- efeitos de morte;
 - torres;
+- deck de cartas;
+- modificadores de upgrade;
+- escolha de cartas entre ondas;
 - projéteis;
 - colisão e validação de posicionamento.
 
@@ -107,9 +187,14 @@ tower-defender/
     theme.js
     game.js
     renderer.js
+    enemyRenderer.js
+    effects.js
     input.js
     path.js
     collision.js
+    deck.js
+    upgrades.js
+    cardChoice.js
     tower.js
     enemy.js
     projectile.js
@@ -125,6 +210,10 @@ tower-defender/
     collision.test.js
     economy.test.js
     enemy.test.js
+    effects.test.js
+    deck.test.js
+    upgrades.test.js
+    card-choice.test.js
     tower.test.js
     projectile.test.js
     storage.test.js
@@ -132,6 +221,11 @@ tower-defender/
 ```
 
 ## Arquitetura
+
+Módulos específicos dos inimigos:
+
+- `enemyRenderer.js`: concentra o desenho, silhueta, hit flash, barra de vida e efeitos de morte dos inimigos.
+- `effects.js`: cria e atualiza efeitos visuais testáveis, incluindo mortes temáticas.
 
 O projeto separa a lógica em módulos pequenos:
 
@@ -147,7 +241,6 @@ O projeto separa a lógica em módulos pequenos:
 - Sons de tiro, impacto e derrota.
 - Mais mapas por tema.
 - Chefes a cada algumas ondas.
-- Venda de torres.
 - Novos tipos de defesa.
 - Animações especiais para upgrades.
 

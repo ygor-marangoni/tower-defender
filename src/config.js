@@ -14,14 +14,14 @@
         mapHintFontSize: 14
       },
       mobile: {
-        width: 480,
-        height: 800,
-        pathWidth: 64,
-        towerRadius: 24,
-        placementPadding: 12,
-        enemyRadiusScale: 1.38,
-        towerHitSlop: 18,
-        mapHintFontSize: 18
+        width: 640,
+        height: 760,
+        pathWidth: 52,
+        towerRadius: 20,
+        placementPadding: 6,
+        enemyRadiusScale: 1.22,
+        towerHitSlop: 16,
+        mapHintFontSize: 16
       }
     },
     CANVAS_WIDTH: 1200,
@@ -30,11 +30,13 @@
     INITIAL_LIVES: 20,
     INITIAL_MONEY: 150,
     INITIAL_SCORE: 0,
+    TOWER_SELL_RATIO: 0.7,
     PATH_WIDTH: 58,
     TOWER_RADIUS: 18,
     ENEMY_BASE_RADIUS: 13,
     ENEMY_RADIUS_SCALE: 1,
     TOWER_HIT_SLOP: 5,
+    MIN_TOWER_SELECTION_RADIUS: 18,
     PROJECTILE_RADIUS: 4,
     PLACEMENT_PADDING: 8,
     MAP_HINT_FONT_SIZE: 14,
