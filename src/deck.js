@@ -9,13 +9,13 @@
   const RARITY_LABELS = {
     common: 'Comum',
     rare: 'Rara',
-    epic: 'Epica'
+    epic: 'Épica'
   };
   const CATEGORY_LABELS = {
     attack: 'Ataque',
     economy: 'Economia',
     defense: 'Defesa',
-    specialization: 'Especializacao',
+    specialization: 'Especialização',
     utility: 'Utilidade'
   };
 
@@ -28,14 +28,14 @@
       effect: { type: 'multiplyModifier', key: 'globalDamageMultiplier', value: 1.1 },
       display: {
         futuristic: {
-          name: 'Projeteis Otimizados',
+          name: 'Projéteis Otimizados',
           description: 'Todas as torres causam +10% de dano.',
-          flavor: 'Ajustes finos aumentam a eficiencia dos disparos.'
+          flavor: 'Ajustes finos aumentam a eficiência dos disparos.'
         },
         medieval: {
           name: 'Pontas Afiadas',
           description: 'Todas as defesas causam +10% de dano.',
-          flavor: 'Ferreiros do reino reforcam as armas da muralha.'
+          flavor: 'Ferreiros do reino reforçam as armas da muralha.'
         }
       }
     },
@@ -67,13 +67,13 @@
       display: {
         futuristic: {
           name: 'Recarga Acelerada',
-          description: 'Todas as torres reduzem cooldown em 8%.',
-          flavor: 'Rotinas de disparo removem atrasos desnecessarios.'
+          description: 'Todas as torres reduzem a recarga em 8%.',
+          flavor: 'Rotinas de disparo removem atrasos desnecessários.'
         },
         medieval: {
-          name: 'Maos Treinadas',
-          description: 'Todas as defesas disparam 8% mais rapido.',
-          flavor: 'Guarnicoes treinadas recarregam sem hesitar.'
+          name: 'Mãos Treinadas',
+          description: 'Todas as defesas disparam 8% mais rápido.',
+          flavor: 'Guarnições treinadas recarregam sem hesitar.'
         }
       }
     },
@@ -85,13 +85,13 @@
       effect: { type: 'multiplyModifier', key: 'globalDamageMultiplier', value: 1.05 },
       display: {
         futuristic: {
-          name: 'Nucleo Critico',
-          description: 'Todas as torres causam +5% de dano medio.',
-          flavor: 'O nucleo prioriza impactos em pontos sensiveis.'
+          name: 'Núcleo Crítico',
+          description: 'Todas as torres causam +5% de dano médio.',
+          flavor: 'O núcleo prioriza impactos em pontos sensíveis.'
         },
         medieval: {
           name: 'Golpe Preciso',
-          description: 'Todas as defesas causam +5% de dano medio.',
+          description: 'Todas as defesas causam +5% de dano médio.',
           flavor: 'Atiradores miram nas juntas das armaduras.'
         }
       }
@@ -109,7 +109,7 @@
         futuristic: {
           name: 'Arsenal Sobrecarregado',
           description: 'Torres ganham +18% de dano, mas novas torres custam +8%.',
-          flavor: 'Energia extra aumenta potencia e desgaste logistico.'
+          flavor: 'Energia extra aumenta potência e desgaste logístico.'
         },
         medieval: {
           name: 'Arsenal Real',
@@ -127,13 +127,13 @@
       display: {
         futuristic: {
           name: 'Protocolo de Recompensa',
-          description: 'Inimigos derrotados dao +15% de creditos.',
-          flavor: 'Cada baixa vira dados negociaveis.'
+          description: 'Inimigos derrotados dão +15% de créditos.',
+          flavor: 'Cada baixa vira dados negociáveis.'
         },
         medieval: {
-          name: 'Cacadores de Recompensa',
-          description: 'Inimigos derrotados dao +15% de ouro.',
-          flavor: 'Mercenarios recolhem espolios pelo campo.'
+          name: 'Caçadores de Recompensa',
+          description: 'Inimigos derrotados dão +15% de ouro.',
+          flavor: 'Mercenários recolhem espólios pelo campo.'
         }
       }
     },
@@ -145,9 +145,9 @@
       effect: { type: 'addMoney', value: 80 },
       display: {
         futuristic: {
-          name: 'Creditos Emergenciais',
-          description: 'Ganha 80 creditos imediatamente.',
-          flavor: 'Uma reserva automatica libera verba extra.'
+          name: 'Créditos Emergenciais',
+          description: 'Ganha 80 créditos imediatamente.',
+          flavor: 'Uma reserva automática libera verba extra.'
         },
         medieval: {
           name: 'Tesouro do Reino',
@@ -164,14 +164,14 @@
       effect: { type: 'multiplyModifier', key: 'towerCostMultiplier', value: 0.9 },
       display: {
         futuristic: {
-          name: 'Construcao Eficiente',
+          name: 'Construção Eficiente',
           description: 'Torres novas custam 10% menos.',
-          flavor: 'Modulos padronizados reduzem desperdicio.'
+          flavor: 'Módulos padronizados reduzem desperdício.'
         },
         medieval: {
-          name: 'Maos de Obra Local',
+          name: 'Mão de Obra Local',
           description: 'Defesas novas custam 10% menos.',
-          flavor: 'Artesaos locais conhecem cada pedra da fortaleza.'
+          flavor: 'Artesãos locais conhecem cada pedra da fortaleza.'
         }
       }
     },
@@ -183,9 +183,9 @@
       effect: { type: 'setSellRatio', value: 0.85 },
       display: {
         futuristic: {
-          name: 'Contrato Logistico',
+          name: 'Contrato Logístico',
           description: 'Venda de torres devolve 85% do investido.',
-          flavor: 'Recuperacao de pecas fica mais eficiente.'
+          flavor: 'Recuperação de peças fica mais eficiente.'
         },
         medieval: {
           name: 'Contrato Mercante',
@@ -202,9 +202,9 @@
       effect: { type: 'multiplyModifier', key: 'rewardMultiplier', value: 1.25 },
       display: {
         futuristic: {
-          name: 'Extracao de Dados',
+          name: 'Extração de Dados',
           description: 'Recompensas de inimigos aumentam +25% permanentemente.',
-          flavor: 'Cada alvo destruido rende pacotes valiosos.'
+          flavor: 'Cada alvo destruído rende pacotes valiosos.'
         },
         medieval: {
           name: 'Saque de Guerra',
@@ -221,14 +221,14 @@
       effect: { type: 'addLife', value: 3 },
       display: {
         futuristic: {
-          name: 'Blindagem do Nucleo',
+          name: 'Blindagem do Núcleo',
           description: 'Ganha +3 de vida.',
           flavor: 'Camadas extras seguram a linha central.'
         },
         medieval: {
-          name: 'Muralhas Reforcadas',
+          name: 'Muralhas Reforçadas',
           description: 'Ganha +3 de vida.',
-          flavor: 'Pedreiros reforcam os pontos mais fracos.'
+          flavor: 'Pedreiros reforçam os pontos mais fracos.'
         }
       }
     },
@@ -240,14 +240,14 @@
       effect: { type: 'multiplyModifier', key: 'lowLifeDamageMultiplier', value: 1.15 },
       display: {
         futuristic: {
-          name: 'Protocolo Ultima Linha',
+          name: 'Protocolo Última Linha',
           description: 'Com 5 vidas ou menos, torres ganham +15% de dano.',
-          flavor: 'A defesa entra em modo de emergencia.'
+          flavor: 'A defesa entra em modo de emergência.'
         },
         medieval: {
-          name: 'Ultima Muralha',
+          name: 'Última Muralha',
           description: 'Com 5 vidas ou menos, defesas ganham +15% de dano.',
-          flavor: 'A guarnicao luta melhor quando tudo esta em risco.'
+          flavor: 'A guarnição luta melhor quando tudo está em risco.'
         }
       }
     },
@@ -278,13 +278,13 @@
       effect: { type: 'multiplyModifier', key: 'basicDamageMultiplier', value: 1.15 },
       display: {
         futuristic: {
-          name: 'Calibracao do Canhao',
-          description: 'Torres basic ganham +15% de dano.',
-          flavor: 'Canhoes principais recebem calibragem fina.'
+          name: 'Calibração do Canhão',
+          description: 'Torres básicas ganham +15% de dano.',
+          flavor: 'Canhões principais recebem calibragem fina.'
         },
         medieval: {
           name: 'Treinamento dos Arqueiros',
-          description: 'Defesas basic ganham +15% de dano.',
+          description: 'Defesas básicas ganham +15% de dano.',
           flavor: 'Arqueiros treinam em alvos menores e mais distantes.'
         }
       }
@@ -298,12 +298,12 @@
       display: {
         futuristic: {
           name: 'Laser Sequencial',
-          description: 'Torres rapid reduzem cooldown em 15%.',
-          flavor: 'Sequenciamento alternado mantem o disparo constante.'
+          description: 'Torres de disparo rápido reduzem a recarga em 15%.',
+          flavor: 'Sequenciamento alternado mantém o disparo constante.'
         },
         medieval: {
           name: 'Mecanismo da Besta',
-          description: 'Defesas rapid reduzem cooldown em 15%.',
+          description: 'Defesas de disparo rápido reduzem a recarga em 15%.',
           flavor: 'Engrenagens melhores aceleram a recarga.'
         }
       }
@@ -317,12 +317,12 @@
       display: {
         futuristic: {
           name: 'Plasma Pesado',
-          description: 'Torres heavy ganham +20% de dano.',
+          description: 'Torres pesadas ganham +20% de dano.',
           flavor: 'O plasma concentrado quebra blindagens densas.'
         },
         medieval: {
           name: 'Mestre de Cerco',
-          description: 'Defesas heavy ganham +20% de dano.',
+          description: 'Defesas pesadas ganham +20% de dano.',
           flavor: 'Artilheiros aprendem a mirar onde a armadura cede.'
         }
       }
@@ -345,7 +345,7 @@
         medieval: {
           name: 'Engenheiro Real',
           description: 'Todas as defesas ganham +10% de dano e +5% de alcance.',
-          flavor: 'O engenheiro real aperfeicoa cada estrutura.'
+          flavor: 'O engenheiro real aperfeiçoa cada estrutura.'
         }
       }
     },
@@ -360,7 +360,7 @@
       ],
       display: {
         futuristic: {
-          name: 'Visao Tatica',
+          name: 'Visão Tática',
           description: 'Alcance fica mais claro e aumenta +5%.',
           flavor: 'A interface destaca zonas de cobertura importantes.'
         },
@@ -380,12 +380,12 @@
       display: {
         futuristic: {
           name: 'Unidades Veteranas',
-          description: 'Torres ja posicionadas ganham +10% de dano.',
+          description: 'Torres já posicionadas ganham +10% de dano.',
           flavor: 'Sistemas em campo aprendem com combate real.'
         },
         medieval: {
           name: 'Defensores Veteranos',
-          description: 'Defesas ja posicionadas ganham +10% de dano.',
+          description: 'Defesas já posicionadas ganham +10% de dano.',
           flavor: 'Veteranos seguram a linha com disciplina.'
         }
       }
@@ -398,12 +398,12 @@
       effect: { type: 'addModifier', key: 'perfectWaveBonus', value: 40 },
       display: {
         futuristic: {
-          name: 'Execucao Perfeita',
-          description: 'Se uma onda terminar sem perder vida, ganha +40 creditos.',
-          flavor: 'Defesas impecaveis geram bonus operacional.'
+          name: 'Execução Perfeita',
+          description: 'Se uma onda terminar sem perder vida, ganha +40 créditos.',
+          flavor: 'Defesas impecáveis geram bônus operacional.'
         },
         medieval: {
-          name: 'Defesa Impecavel',
+          name: 'Defesa Impecável',
           description: 'Se um cerco terminar sem perder vida, ganha +40 ouro.',
           flavor: 'O reino recompensa muralhas intactas.'
         }

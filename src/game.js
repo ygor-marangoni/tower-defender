@@ -339,6 +339,13 @@
       this.animationFrame = requestAnimationFrame(this.loop);
     }
 
+    ensureLoop() {
+      if (this.animationFrame === null) {
+        this.lastTime = 0;
+        this.animationFrame = requestAnimationFrame(this.loop);
+      }
+    }
+
     getElements() {
       return {
         modeMenu: document.getElementById('modeMenu'),
@@ -421,9 +428,9 @@
         }
       });
       this.elements.cardChoiceGrid?.addEventListener('click', (event) => {
-        const cardButton = event.target.closest('[data-card-id]');
+        const cardButton = event.target.closest('.upgrade-card-action[data-card-id]');
 
-        if (cardButton) {
+        if (cardButton && this.elements.cardChoiceGrid.contains(cardButton)) {
           this.chooseUpgradeCard(cardButton.dataset.cardId);
         }
       });
@@ -606,8 +613,13 @@
 
     getCardChoiceTitle() {
       return this.currentThemeId === 'medieval'
-        ? 'Escolha uma bencao do reino'
+        ? 'Escolha uma bênção'
         : 'Escolha um protocolo';
+    }
+
+    setCardChoiceScrollLock(isLocked) {
+      document.documentElement?.classList.toggle('card-choice-lock', isLocked);
+      document.body?.classList.toggle('card-choice-lock', isLocked);
     }
 
     renderCardChoice() {
@@ -618,6 +630,7 @@
       const isOpen = this.isCardChoiceOpen();
       this.elements.cardChoiceOverlay.classList.toggle('is-hidden', !isOpen);
       this.elements.cardChoiceOverlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+      this.setCardChoiceScrollLock(isOpen);
 
       if (!isOpen) {
         this.elements.cardChoiceGrid.innerHTML = '';
@@ -628,21 +641,34 @@
       this.elements.cardChoiceSubtitle.textContent = 'A cada 3 ondas, escolha uma carta para fortalecer sua defesa.';
       this.elements.cardChoiceGrid.innerHTML = this.cardChoice.choices.map((card) => {
         const display = TD.getCardDisplayData(card, this.currentThemeId);
+        const rarityIcon = {
+          common: 'diamond',
+          rare: 'sparkle',
+          epic: 'sparkles'
+        }[display.rarity] || 'diamond';
 
         return `
-          <button class="upgrade-card rarity-${display.rarity}" type="button" data-card-id="${display.id}">
-            <span class="upgrade-card-topline">
-              <span class="upgrade-card-rarity">${display.rarityLabel}</span>
-              <span class="upgrade-card-category">${display.categoryLabel}</span>
-            </span>
-            <span class="upgrade-card-icon" aria-hidden="true">
-              <i data-lucide="${display.icon}"></i>
-            </span>
-            <strong>${display.name}</strong>
-            <span class="upgrade-card-description">${display.description}</span>
-            <small>${display.flavor}</small>
-            <span class="upgrade-card-action">Escolher</span>
-          </button>
+          <article class="upgrade-card rarity-${display.rarity}">
+            <div class="upgrade-card-main">
+              <span class="upgrade-card-topline">
+                <span class="upgrade-card-rarity">
+                  <i data-lucide="${rarityIcon}" aria-hidden="true"></i>
+                  ${display.rarityLabel}
+                </span>
+                <span class="upgrade-card-category">${display.categoryLabel}</span>
+              </span>
+              <span class="upgrade-card-icon" aria-hidden="true">
+                <i data-lucide="${display.icon}"></i>
+              </span>
+              <h3>${display.name}</h3>
+              <p class="upgrade-card-description">${display.description}</p>
+              <p class="upgrade-card-flavor">${display.flavor}</p>
+            </div>
+            <button class="upgrade-card-action" type="button" data-card-id="${display.id}" aria-label="Escolher ${display.name}">
+              <span>Escolher</span>
+              <i data-lucide="chevron-right" aria-hidden="true"></i>
+            </button>
+          </article>
         `;
       }).join('');
       this.refreshIcons();
@@ -678,6 +704,7 @@
       this.updateHud();
       this.updateButtons();
       this.persistGameState({ force: true });
+      this.ensureLoop();
       return result;
     }
 
@@ -869,6 +896,12 @@
       this.lastTime = timestamp;
 
       if (this.appMode === 'playing') {
+        if (this.isCardChoiceOpen()) {
+          this.updateFeedback(deltaMs);
+          this.animationFrame = null;
+          return;
+        }
+
         this.update(deltaMs, timestamp);
         this.renderer.render(this.getRenderState(timestamp));
         this.updateHud();

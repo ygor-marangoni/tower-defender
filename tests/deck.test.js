@@ -59,7 +59,7 @@
       const futuristic = TD.getCardDisplayData('sharpenedProjectiles', 'futuristic');
       const medieval = TD.getCardDisplayData('sharpenedProjectiles', 'medieval');
 
-      expect(futuristic.name).toBe('Projeteis Otimizados');
+      expect(futuristic.name).toBe('Projéteis Otimizados');
       expect(medieval.name).toBe('Pontas Afiadas');
     });
 
