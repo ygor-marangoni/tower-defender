@@ -51,6 +51,22 @@ Todos os inimigos são desenhados diretamente com Canvas API, sem imagens extern
 - Recordes separados por modo usando LocalStorage.
 - Test runner próprio, sem dependências externas de teste.
 
+## Posicionamento com grid
+
+Ao selecionar uma torre ou defesa, o Canvas exibe uma grade cinza sutil com opacidade reduzida. O mouse destaca a célula atual: verde indica uma posição válida e vermelho indica uma posição inválida.
+
+A preview da defesa e o range sempre usam o centro da célula mais próxima. Ao clicar, a defesa é criada exatamente nesse centro, sem usar coordenadas livres do mouse.
+
+Não é possível construir sobre a estrada/rota, fora da arena, sem recursos suficientes ou em uma célula já ocupada por outra defesa. O sistema funciona nos temas Futurista e Medieval, usando as mesmas regras de snap e validação.
+
+## Posicionamento mobile
+
+No mobile, toque e arraste uma torre/defesa a partir do painel ate o campo. Um preview HTML acompanha o dedo com leve deslocamento para cima, evitando que o toque esconda a defesa.
+
+Ao entrar no Canvas, o mesmo grid do desktop aparece. A defesa passa a encaixar no centro da celula mais proxima, o range aparece alinhado ao centro da celula e o destaque indica o resultado: verde permite construir, vermelho cancela.
+
+Ao soltar em uma celula valida, a defesa e criada com snap-to-grid. Soltar fora do campo, sobre a estrada, sobre outra defesa ou sem recursos suficientes cancela a acao e mostra feedback. Toque simples no card continua selecionando a defesa normalmente para preservar acessibilidade e o fluxo tradicional.
+
 ## Venda de torres
 
 - Clique em uma torre posicionada para seleciona-la.
@@ -111,7 +127,7 @@ Cartas iniciais:
 1. Abra `index.html` no navegador.
 2. Escolha `Modo Futurista` ou `Modo Medieval`.
 3. Selecione uma torre/defesa.
-4. Clique ou toque fora da rota para posicionar.
+4. Clique fora da rota no desktop ou arraste a defesa ate o campo no mobile.
 5. Inicie a onda.
 6. Selecione torres posicionadas para melhorar ou vender.
 7. A cada 3 ondas concluidas, escolha uma carta de upgrade.
@@ -128,6 +144,9 @@ O jogo tem uma experiência mobile própria:
 - Torres, inimigos e área de toque ampliados.
 - Botão de ampliar arena no card do mapa.
 - Modo foco em tela cheia com controles essenciais na parte inferior.
+
+- Posicionamento por arrastar e soltar usando Pointer Events.
+- Preview acompanha o dedo, com grid e feedback verde/vermelho ao entrar no campo.
 
 ## Tecnologias
 
@@ -173,6 +192,7 @@ A suíte cobre:
 - modificadores de upgrade;
 - escolha de cartas entre ondas;
 - projéteis;
+- grid, snap e células ocupadas;
 - colisão e validação de posicionamento.
 
 ## Estrutura
@@ -190,8 +210,10 @@ tower-defender/
     enemyRenderer.js
     effects.js
     input.js
+    mobilePlacement.js
     path.js
     collision.js
+    grid.js
     deck.js
     upgrades.js
     cardChoice.js
@@ -208,6 +230,8 @@ tower-defender/
     theme.test.js
     game-theme.test.js
     collision.test.js
+    grid.test.js
+    mobile-placement.test.js
     economy.test.js
     enemy.test.js
     effects.test.js

@@ -47,8 +47,8 @@
 
     test('permitir posicionamento fora do caminho do tema atual', () => {
       const result = TD.Collision.canPlaceTower({
-        x: 880,
-        y: 80,
+        x: 888,
+        y: 24,
         towers: [],
         pathPoints: TD.getThemePath('medieval')
       });

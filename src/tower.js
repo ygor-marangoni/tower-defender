@@ -31,9 +31,11 @@
 
     getAimOrigin() {
       if (this.themeId === 'medieval' && this.type === 'basic') {
+        const visualOffset = CONFIG.MEDIEVAL_ARCHER_VISUAL_Y_OFFSET || 0;
+
         return {
           x: this.x,
-          y: this.y - 34
+          y: this.y - 34 + visualOffset
         };
       }
 
@@ -46,10 +48,11 @@
     getProjectileOrigin() {
       if (this.themeId === 'medieval' && this.type === 'basic') {
         const bowOffset = 15;
+        const visualOffset = CONFIG.MEDIEVAL_ARCHER_VISUAL_Y_OFFSET || 0;
 
         return {
           x: this.x + Math.cos(this.rotation) * bowOffset,
-          y: this.y - 34 + Math.sin(this.rotation) * bowOffset
+          y: this.y - 34 + visualOffset + Math.sin(this.rotation) * bowOffset
         };
       }
 

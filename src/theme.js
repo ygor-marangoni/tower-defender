@@ -5,40 +5,40 @@
   const DEFAULT_THEME_ID = 'futuristic';
   const FUTURISTIC_PATH = (CONFIG.PATH_POINTS || []).map((point) => ({ ...point }));
   const FUTURISTIC_MOBILE_PATH = [
-    { x: 320, y: -44 },
-    { x: 320, y: 94 },
-    { x: 188, y: 94 },
-    { x: 188, y: 258 },
-    { x: 452, y: 258 },
-    { x: 452, y: 420 },
-    { x: 236, y: 420 },
-    { x: 236, y: 600 },
-    { x: 346, y: 600 },
-    { x: 346, y: 808 }
+    { x: 336, y: -48 },
+    { x: 336, y: 96 },
+    { x: 192, y: 96 },
+    { x: 192, y: 240 },
+    { x: 432, y: 240 },
+    { x: 432, y: 432 },
+    { x: 240, y: 432 },
+    { x: 240, y: 624 },
+    { x: 336, y: 624 },
+    { x: 336, y: 816 }
   ];
   const MEDIEVAL_PATH = [
-    { x: -40, y: 430 },
-    { x: 212, y: 430 },
-    { x: 212, y: 250 },
-    { x: 450, y: 250 },
-    { x: 450, y: 400 },
-    { x: 750, y: 400 },
-    { x: 750, y: 170 },
-    { x: 1025, y: 170 },
-    { x: 1025, y: 320 },
-    { x: 1218, y: 320 }
+    { x: -48, y: 432 },
+    { x: 192, y: 432 },
+    { x: 192, y: 240 },
+    { x: 432, y: 240 },
+    { x: 432, y: 384 },
+    { x: 768, y: 384 },
+    { x: 768, y: 144 },
+    { x: 1008, y: 144 },
+    { x: 1008, y: 336 },
+    { x: 1248, y: 336 }
   ];
   const MEDIEVAL_MOBILE_PATH = [
-    { x: 166, y: -44 },
-    { x: 166, y: 100 },
-    { x: 464, y: 100 },
-    { x: 464, y: 270 },
-    { x: 222, y: 270 },
-    { x: 222, y: 432 },
-    { x: 464, y: 432 },
-    { x: 464, y: 604 },
-    { x: 340, y: 604 },
-    { x: 340, y: 804 }
+    { x: 144, y: -48 },
+    { x: 144, y: 96 },
+    { x: 480, y: 96 },
+    { x: 480, y: 288 },
+    { x: 240, y: 288 },
+    { x: 240, y: 432 },
+    { x: 480, y: 432 },
+    { x: 480, y: 624 },
+    { x: 336, y: 624 },
+    { x: 336, y: 816 }
   ];
 
   const THEMES = {
@@ -60,6 +60,13 @@
         warning: '#F59E0B',
         path: '#1F2A37',
         pathAccent: 'rgba(148, 163, 184, 0.34)'
+      },
+      grid: {
+        lineColor: 'rgba(180, 180, 180, 0.38)',
+        validCellColor: 'rgba(52, 211, 153, 0.18)',
+        invalidCellColor: 'rgba(244, 63, 94, 0.22)',
+        hoverBorderValid: 'rgba(52, 211, 153, 0.75)',
+        hoverBorderInvalid: 'rgba(244, 63, 94, 0.75)'
       },
       labels: {
         base: 'Núcleo',
@@ -130,6 +137,11 @@
         'ESC cancela a seleção.',
         'Torres priorizam inimigos mais próximos do núcleo.'
       ],
+      mobileInstructions: [
+        'Arraste uma torre até o campo e solte em uma célula livre.',
+        'Toque simples ainda seleciona a torre.',
+        'Verde constrói, vermelho cancela.'
+      ],
       baseHitInset: {
         desktop: 116,
         mobile: 118
@@ -159,6 +171,13 @@
         pathAccent: 'rgba(233, 211, 157, 0.3)',
         grass: '#1E3926',
         earth: '#3A2819'
+      },
+      grid: {
+        lineColor: 'rgba(180, 180, 180, 0.38)',
+        validCellColor: 'rgba(108, 168, 110, 0.18)',
+        invalidCellColor: 'rgba(185, 74, 72, 0.22)',
+        hoverBorderValid: 'rgba(108, 168, 110, 0.75)',
+        hoverBorderInvalid: 'rgba(185, 74, 72, 0.75)'
       },
       labels: {
         base: 'Castelo',
@@ -228,6 +247,11 @@
         'Escolha uma defesa e clique fora da estrada para posicionar.',
         'ESC cancela a seleção.',
         'As defesas priorizam invasores mais próximos do castelo.'
+      ],
+      mobileInstructions: [
+        'Arraste uma defesa até o campo e solte fora da estrada.',
+        'Toque simples ainda seleciona a defesa.',
+        'Verde constrói, vermelho cancela.'
       ],
       baseHitInset: {
         desktop: 74,

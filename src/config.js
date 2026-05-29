@@ -6,9 +6,9 @@
       desktop: {
         width: 1200,
         height: 540,
-        pathWidth: 58,
+        pathWidth: 72,
         towerRadius: 18,
-        placementPadding: 8,
+        placementPadding: 5,
         enemyRadiusScale: 1,
         towerHitSlop: 5,
         mapHintFontSize: 14
@@ -16,9 +16,9 @@
       mobile: {
         width: 640,
         height: 760,
-        pathWidth: 52,
+        pathWidth: 72,
         towerRadius: 20,
-        placementPadding: 6,
+        placementPadding: 3,
         enemyRadiusScale: 1.22,
         towerHitSlop: 16,
         mapHintFontSize: 16
@@ -31,14 +31,31 @@
     INITIAL_MONEY: 150,
     INITIAL_SCORE: 0,
     TOWER_SELL_RATIO: 0.7,
-    PATH_WIDTH: 58,
+    PATH_WIDTH: 72,
     TOWER_RADIUS: 18,
+    MEDIEVAL_ARCHER_VISUAL_Y_OFFSET: 12,
     ENEMY_BASE_RADIUS: 13,
     ENEMY_RADIUS_SCALE: 1,
     TOWER_HIT_SLOP: 5,
     MIN_TOWER_SELECTION_RADIUS: 18,
     PROJECTILE_RADIUS: 4,
-    PLACEMENT_PADDING: 8,
+    PLACEMENT_PADDING: 5,
+    GRID: {
+      enabled: true,
+      size: 48,
+      lineColor: 'rgba(180, 180, 180, 0.38)',
+      validCellColor: 'rgba(74, 222, 128, 0.18)',
+      invalidCellColor: 'rgba(248, 113, 113, 0.20)',
+      hoverBorderValid: 'rgba(74, 222, 128, 0.75)',
+      hoverBorderInvalid: 'rgba(248, 113, 113, 0.75)'
+    },
+    DRAG_PLACEMENT: {
+      threshold: 8,
+      ghostOffset: {
+        x: 0,
+        y: -48
+      }
+    },
     MAP_HINT_FONT_SIZE: 14,
     WAVE_HEALTH_GROWTH: 1.12,
     STORAGE_KEYS: {
@@ -46,16 +63,16 @@
       BEST_WAVE: 'tower-defender.bestWave'
     },
     PATH_POINTS: [
-      { x: -45, y: 292 },
-      { x: 150, y: 292 },
-      { x: 150, y: 116 },
-      { x: 410, y: 116 },
-      { x: 410, y: 412 },
-      { x: 685, y: 412 },
-      { x: 685, y: 184 },
-      { x: 950, y: 184 },
-      { x: 950, y: 330 },
-      { x: 1245, y: 330 }
+      { x: -48, y: 288 },
+      { x: 144, y: 288 },
+      { x: 144, y: 96 },
+      { x: 432, y: 96 },
+      { x: 432, y: 432 },
+      { x: 672, y: 432 },
+      { x: 672, y: 192 },
+      { x: 960, y: 192 },
+      { x: 960, y: 336 },
+      { x: 1248, y: 336 }
     ]
   };
 

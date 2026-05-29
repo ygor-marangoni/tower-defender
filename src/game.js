@@ -27,6 +27,7 @@
       effects: [],
       selectedTowerType: null,
       selectedPlacedTower: null,
+      placementPreview: createInactivePlacementPreview(),
       upgrades: TD.createUpgradeState ? TD.createUpgradeState() : null,
       cardChoice: TD.createCardChoiceState ? TD.createCardChoiceState() : null
     };
@@ -39,6 +40,27 @@
 
     state.selectedTowerType = null;
     state.selectedPlacedTower = null;
+    clearPlacementPreview(state);
+    return state;
+  }
+
+  function createInactivePlacementPreview() {
+    return {
+      isActive: false,
+      cell: null,
+      position: null,
+      canPlace: false,
+      reason: null,
+      towerType: null
+    };
+  }
+
+  function clearPlacementPreview(state) {
+    if (!state || typeof state !== 'object') {
+      return state;
+    }
+
+    state.placementPreview = createInactivePlacementPreview();
     return state;
   }
 
@@ -186,6 +208,8 @@
       type: tower.type,
       x: tower.x,
       y: tower.y,
+      gridCell: tower.gridCell || null,
+      gridKey: tower.gridKey || null,
       level: tower.level,
       damage: tower.damage,
       range: tower.range,
@@ -218,6 +242,10 @@
     tower.cardDamageMultiplier = Math.max(0.1, readFiniteNumber(savedTower.cardDamageMultiplier, tower.cardDamageMultiplier || 1));
     tower.lastShotAt = Number.NEGATIVE_INFINITY;
     tower.shotPulse = 0;
+    tower.gridCell = savedTower.gridCell && Number.isFinite(savedTower.gridCell.col) && Number.isFinite(savedTower.gridCell.row)
+      ? { col: savedTower.gridCell.col, row: savedTower.gridCell.row }
+      : TD.Grid.getTowerCell(tower);
+    tower.gridKey = savedTower.gridKey || TD.Grid.getCellKey(tower.gridCell);
 
     return tower;
   }
@@ -327,6 +355,12 @@
       this.sidebarMediaQuery = global.matchMedia('(max-width: 1120px)');
       this.boardFocusActive = false;
       this.boardFocusPreviousSidebarCollapsed = null;
+      this.cardChoiceRenderedOpen = false;
+      this.dragPlacement = TD.MobilePlacement.createInitialDragPlacementState();
+      this.dragGhostElement = null;
+      this.dragSourceButton = null;
+      this.placementToast = null;
+      this.suppressNextTowerClick = false;
       this.applyBoardLayout(this.boardLayout);
 
       this.reset(this.currentThemeId, { saveAfterReset: false });
@@ -406,7 +440,11 @@
       });
 
       this.elements.towerButtons.forEach((button) => {
-        button.addEventListener('click', () => this.selectTowerType(button.dataset.tower));
+        button.addEventListener('click', (event) => this.handleTowerButtonClick(event, button));
+        button.addEventListener('pointerdown', (event) => this.handleTowerPointerDown(event, button));
+        button.addEventListener('pointermove', (event) => this.handleTowerPointerMove(event, button));
+        button.addEventListener('pointerup', (event) => this.handleTowerPointerUp(event, button));
+        button.addEventListener('pointercancel', (event) => this.handleTowerPointerCancel(event, button));
       });
 
       this.elements.startWave.addEventListener('click', () => this.startWave());
@@ -437,10 +475,224 @@
       global.addEventListener('beforeunload', () => this.persistGameState({ force: true }));
     }
 
+    handleTowerButtonClick(event, button) {
+      if (this.suppressNextTowerClick) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.suppressNextTowerClick = false;
+        return;
+      }
+
+      this.selectTowerType(button.dataset.towerType || button.dataset.tower);
+    }
+
+    getPointerScreenPosition(event) {
+      return {
+        x: event.clientX,
+        y: event.clientY
+      };
+    }
+
+    handleTowerPointerDown(event, button) {
+      if (event.pointerType === 'mouse' || button.disabled || TD.MobilePlacement.shouldBlockTowerDrag(this)) {
+        return;
+      }
+
+      if (this.dragPlacement.isPending || this.dragPlacement.isDragging) {
+        return;
+      }
+
+      const towerType = button.dataset.towerType || button.dataset.tower;
+
+      if (!TOWER_TYPES[towerType]) {
+        return;
+      }
+
+      this.dragPlacement = TD.MobilePlacement.beginTowerTouch(
+        this.dragPlacement,
+        event.pointerId,
+        towerType,
+        this.getPointerScreenPosition(event)
+      );
+      this.dragSourceButton = button;
+
+      if (typeof button.setPointerCapture === 'function') {
+        button.setPointerCapture(event.pointerId);
+      }
+    }
+
+    handleTowerPointerMove(event, button) {
+      if (event.pointerType === 'mouse' || TD.MobilePlacement.shouldIgnorePointer(this.dragPlacement, event.pointerId)) {
+        return;
+      }
+
+      const screenPosition = this.getPointerScreenPosition(event);
+
+      if (!this.dragPlacement.isDragging) {
+        if (!TD.MobilePlacement.shouldStartDrag(
+          this.dragPlacement.startScreenPosition,
+          screenPosition,
+          TD.MobilePlacement.getDragConfig().threshold
+        )) {
+          return;
+        }
+
+        this.startTowerDrag(button, screenPosition);
+      }
+
+      event.preventDefault();
+      this.updateTowerDrag(screenPosition);
+    }
+
+    handleTowerPointerUp(event, button) {
+      if (event.pointerType === 'mouse' || TD.MobilePlacement.shouldIgnorePointer(this.dragPlacement, event.pointerId)) {
+        return;
+      }
+
+      const wasActiveTouch = this.dragPlacement.isPending || this.dragPlacement.isDragging;
+
+      if (!wasActiveTouch) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (this.dragPlacement.isDragging) {
+        this.updateTowerDrag(this.getPointerScreenPosition(event));
+      }
+
+      const result = TD.MobilePlacement.finishDragPlacement(this.dragPlacement);
+
+      if (result.action === 'build') {
+        this.tryPlaceTower(result.position.x, result.position.y, result.towerType, {
+          canPlace: true,
+          reason: null,
+          position: result.position,
+          cell: result.cell,
+          isActive: true,
+          towerType: result.towerType
+        });
+        } else if (result.action === 'select') {
+          this.selectTowerType(result.towerType);
+        } else if (result.reason) {
+          const message = this.getMobilePlacementError(result.reason);
+          const toastPosition = this.dragPlacement.snappedPosition || this.dragPlacement.canvasPosition || {
+            x: CONFIG.CANVAS_WIDTH / 2,
+            y: CONFIG.CANVAS_HEIGHT / 2
+          };
+
+          this.showFeedback(message, 1600);
+          this.showPlacementToast(message, toastPosition);
+        }
+
+      this.suppressNextTowerClick = true;
+      this.finishTowerDrag(button, event.pointerId);
+    }
+
+    handleTowerPointerCancel(event, button) {
+      if (event.pointerType === 'mouse' || TD.MobilePlacement.shouldIgnorePointer(this.dragPlacement, event.pointerId)) {
+        return;
+      }
+
+      this.showFeedback('Posicionamento cancelado.');
+      this.finishTowerDrag(button, event.pointerId);
+    }
+
+    startTowerDrag(button, screenPosition) {
+      this.dragPlacement = TD.MobilePlacement.startDragFromTouch(this.dragPlacement);
+      this.selectedTowerType = null;
+      this.selectedPlacedTower = null;
+      this.dragSourceButton = button;
+      button.classList.add('is-dragging');
+      document.body.classList.add('is-dragging-tower');
+      this.dragGhostElement = TD.MobilePlacement.createDragGhostElement(
+        button,
+        this.dragPlacement.towerType,
+        this.currentThemeId,
+        document
+      );
+      TD.MobilePlacement.updateDragGhostElement(this.dragGhostElement, screenPosition, this.dragPlacement);
+      this.updateButtons();
+    }
+
+    updateTowerDrag(screenPosition) {
+      const canvasRect = this.canvas.getBoundingClientRect();
+      const grid = TD.Grid.getGridConfig(this.currentTheme);
+
+      this.dragPlacement = TD.MobilePlacement.updateDragPosition(
+        this.dragPlacement,
+        screenPosition,
+        canvasRect,
+        {
+          width: CONFIG.CANVAS_WIDTH,
+          height: CONFIG.CANVAS_HEIGHT
+        },
+        grid,
+        (position) => TD.Grid.canPlaceTowerAtSnappedPosition(this, position, this.dragPlacement.towerType)
+      );
+
+      TD.MobilePlacement.updateDragGhostElement(this.dragGhostElement, screenPosition, this.dragPlacement);
+
+      if (this.dragPlacement.isOverCanvas) {
+        this.mouse = {
+          ...this.dragPlacement.canvasPosition,
+          inside: true
+        };
+        this.placementPreview = {
+          isActive: true,
+          cell: this.dragPlacement.cell,
+          position: this.dragPlacement.snappedPosition,
+          canPlace: this.dragPlacement.canPlace,
+          reason: this.dragPlacement.reason,
+          towerType: this.dragPlacement.towerType
+        };
+        this.placement = {
+          valid: this.dragPlacement.canPlace,
+          reason: this.dragPlacement.reason
+        };
+        return;
+      }
+
+      this.mouse = { x: 0, y: 0, inside: false };
+      this.placement = { valid: false, reason: null };
+      this.placementPreview = createInactivePlacementPreview();
+    }
+
+    finishTowerDrag(button = this.dragSourceButton, pointerId = null) {
+      if (button && pointerId !== null && typeof button.releasePointerCapture === 'function') {
+        try {
+          button.releasePointerCapture(pointerId);
+        } catch (error) {
+          // Pointer capture may already be released by the browser on cancel.
+        }
+      }
+
+      this.clearDragPlacementState();
+      this.updateButtons();
+    }
+
+    clearDragPlacementState() {
+      TD.MobilePlacement.removeDragGhostElement(this.dragGhostElement);
+      this.dragGhostElement = null;
+
+      if (this.dragSourceButton) {
+        this.dragSourceButton.classList.remove('is-dragging');
+      }
+
+      this.dragSourceButton = null;
+      document.body.classList.remove('is-dragging-tower');
+      this.dragPlacement = TD.MobilePlacement.resetDragPlacement();
+      this.mouse = { x: 0, y: 0, inside: false };
+      this.placement = { valid: false, reason: null };
+      this.placementPreview = createInactivePlacementPreview();
+    }
+
     reset(themeId = this.currentThemeId, { clearSavedGame = false, saveAfterReset = this.appMode === 'playing' } = {}) {
       if (clearSavedGame) {
         TD.Storage.clearActiveGame();
       }
+
+      this.clearDragPlacementState();
 
       const initialState = createInitialGameState(themeId, this.boardLayout);
 
@@ -461,7 +713,9 @@
       this.hoveredTower = null;
       this.mouse = { x: 0, y: 0, inside: false };
       this.placement = { valid: false, reason: null };
-      this.feedback = this.currentTheme.instructions[0];
+      this.placementPreview = createInactivePlacementPreview();
+      this.placementToast = null;
+      this.feedback = this.getPrimaryInstruction();
       this.feedbackTimer = 0;
       this.gameOver = false;
       this.completedWave = 0;
@@ -542,6 +796,8 @@
         return false;
       }
 
+      this.clearDragPlacementState();
+
       const theme = TD.getThemeById(snapshot.themeId);
       const pathPoints = TD.getThemePath(theme.id, this.boardLayout);
       const savedWidth = readFiniteNumber(snapshot.board?.width, CONFIG.CANVAS_WIDTH);
@@ -586,6 +842,7 @@
       this.hoveredTower = null;
       this.mouse = { x: 0, y: 0, inside: false };
       this.placement = { valid: false, reason: null };
+      this.placementPreview = createInactivePlacementPreview();
       this.feedback = this.currentWave
         ? `${this.currentTheme.labels.wave} ${this.currentWave.number} restaurada.`
         : 'Partida restaurada.';
@@ -622,19 +879,38 @@
       document.body?.classList.toggle('card-choice-lock', isLocked);
     }
 
+    resetCardChoiceScroll() {
+      const overlay = this.elements.cardChoiceOverlay;
+      const panel = overlay?.querySelector('.card-choice-panel');
+
+      if (overlay) {
+        overlay.scrollTop = 0;
+      }
+
+      if (panel) {
+        panel.scrollTop = 0;
+      }
+    }
+
     renderCardChoice() {
       if (!this.elements.cardChoiceOverlay || !this.elements.cardChoiceGrid) {
         return;
       }
 
       const isOpen = this.isCardChoiceOpen();
+      const didOpen = isOpen && !this.cardChoiceRenderedOpen;
       this.elements.cardChoiceOverlay.classList.toggle('is-hidden', !isOpen);
       this.elements.cardChoiceOverlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
       this.setCardChoiceScrollLock(isOpen);
 
       if (!isOpen) {
         this.elements.cardChoiceGrid.innerHTML = '';
+        this.cardChoiceRenderedOpen = false;
         return;
+      }
+
+      if (didOpen) {
+        this.resetCardChoiceScroll();
       }
 
       this.elements.cardChoiceTitle.textContent = this.getCardChoiceTitle();
@@ -672,6 +948,12 @@
         `;
       }).join('');
       this.refreshIcons();
+
+      if (didOpen) {
+        requestAnimationFrame(() => this.resetCardChoiceScroll());
+      }
+
+      this.cardChoiceRenderedOpen = true;
     }
 
     openCardChoiceForWave(completedWave) {
@@ -681,6 +963,7 @@
         return false;
       }
 
+      this.clearDragPlacementState();
       this.showFeedback('Escolha uma melhoria para continuar fortalecendo sua defesa.');
       this.renderCardChoice();
       this.updateButtons();
@@ -1080,6 +1363,7 @@
 
       this.selectedTowerType = type;
       this.selectedPlacedTower = null;
+      this.placementPreview = createInactivePlacementPreview();
       this.showFeedback(`${TD.getThemeTowerInfo(this.currentThemeId, type).name} selecionada. Clique no mapa para posicionar.`);
       this.updateButtons();
     }
@@ -1097,20 +1381,12 @@
         return;
       }
 
-      const tower = this.getTowerAt(x, y);
-
       if (this.selectedTowerType) {
-        if (tower) {
-          this.selectedTowerType = null;
-          this.selectedPlacedTower = tower;
-          this.showFeedback(this.getSelectedTowerFeedback(tower));
-          this.updateButtons();
-          return;
-        }
-
         this.tryPlaceTower(x, y);
         return;
       }
+
+      const tower = this.getTowerAt(x, y);
 
       if (tower) {
         this.selectedPlacedTower = tower;
@@ -1124,39 +1400,39 @@
       this.updateButtons();
     }
 
-    tryPlaceTower(x, y) {
-      const towerInfo = TD.getThemeTowerInfo(this.currentThemeId, this.selectedTowerType);
-      const cost = TD.getEffectiveTowerCost(this.selectedTowerType, this.upgrades);
-
-      if (!this.economy.canAfford(cost)) {
-        this.showFeedback(`${this.currentTheme.labels.money} insuficiente para ${towerInfo.name}.`);
+    tryPlaceTower(x, y, towerType = this.selectedTowerType, placementOverride = null) {
+      if (!towerType || !TOWER_TYPES[towerType]) {
+        this.showFeedback(this.getPlacementError('NO_TOWER_SELECTED'));
         return false;
       }
 
-      const placement = TD.Collision.canPlaceTower({
-        x,
-        y,
-        towers: this.towers,
-        pathPoints: this.pathPoints
-      });
+      const towerInfo = TD.getThemeTowerInfo(this.currentThemeId, towerType);
+      const cost = TD.getEffectiveTowerCost(towerType, this.upgrades);
+      const placement = placementOverride || (this.placementPreview?.isActive && this.placementPreview.towerType === towerType
+        ? this.placementPreview
+        : TD.Grid.getGridPlacementState(this, x, y, towerType));
+      const position = placement.position || { x, y };
 
-      if (!placement.valid) {
+      if (!placement.canPlace) {
         this.showFeedback(this.getPlacementError(placement.reason));
         return false;
       }
 
       this.economy.spend(cost);
       const tower = new TD.Tower({
-        type: this.selectedTowerType,
+        type: towerType,
         themeId: this.currentThemeId,
-        x,
-        y
+        x: position.x,
+        y: position.y
       });
       tower.totalInvested = cost;
+      tower.gridCell = placement.cell;
+      tower.gridKey = TD.Grid.getCellKey(placement.cell);
       this.towers.push(tower);
       this.selectedPlacedTower = tower;
       this.selectedTowerType = null;
-      this.addEffect(x, y, tower.color, 30, true);
+      this.placementPreview = createInactivePlacementPreview();
+      this.addEffect(position.x, position.y, tower.color, 30, true);
       this.showFeedback(`${towerInfo.name} posicionada.`);
       this.updateButtons();
       this.persistGameState({ force: true });
@@ -1216,6 +1492,7 @@
         return;
       }
 
+      this.clearDragPlacementState();
       TD.clearTowerSelections(this);
       this.showFeedback('Seleção cancelada.');
       this.updateButtons();
@@ -1226,23 +1503,28 @@
     }
 
     updateMouseState() {
+      if (this.dragPlacement?.isDragging) {
+        return;
+      }
+
       if (!this.mouse.inside) {
         this.hoveredTower = null;
         this.placement = { valid: false, reason: null };
+        this.placementPreview = createInactivePlacementPreview();
         return;
       }
 
       this.hoveredTower = this.getTowerAt(this.mouse.x, this.mouse.y);
 
       if (this.selectedTowerType) {
-        this.placement = TD.Collision.canPlaceTower({
-          x: this.mouse.x,
-          y: this.mouse.y,
-          towers: this.towers,
-          pathPoints: this.pathPoints
-        });
+        this.placementPreview = TD.Grid.getGridPlacementState(this, this.mouse.x, this.mouse.y, this.selectedTowerType);
+        this.placement = {
+          valid: this.placementPreview.canPlace,
+          reason: this.placementPreview.reason
+        };
       } else {
         this.placement = { valid: false, reason: null };
+        this.placementPreview = createInactivePlacementPreview();
       }
     }
 
@@ -1254,10 +1536,27 @@
       const messages = {
         path: 'Não dá para construir no caminho dos inimigos.',
         tower: 'Essa posição está muito perto de outra defesa.',
-        bounds: 'Construa um pouco mais para dentro da arena.'
+        bounds: 'Construa um pouco mais para dentro da arena.',
+        PATH_BLOCKED: 'Não dá para construir no caminho dos inimigos.',
+        TOWER_OCCUPIED: 'Célula ocupada por outra defesa.',
+        OUT_OF_BOUNDS: 'Construa um pouco mais para dentro da arena.',
+        NOT_ENOUGH_MONEY: `${this.currentTheme.labels.money} insuficiente para construir.`,
+        NO_TOWER_SELECTED: 'Escolha uma defesa antes de posicionar.',
+        OUTSIDE_CANVAS: 'Solte a defesa dentro da arena.',
+        INVALID_CELL: 'Posição inválida para construir.'
       };
 
       return messages[reason] || 'Posicao invalida para construir.';
+    }
+
+    getMobilePlacementError(reason) {
+      if (reason === 'NOT_ENOUGH_MONEY') {
+        return this.currentThemeId === 'medieval'
+          ? 'Ouro insuficiente.'
+          : `${this.currentTheme.labels.money} insuficientes.`;
+      }
+
+      return 'Local inválido.';
     }
 
     addEffect(x, y, color, radius, behindActors) {
@@ -1270,15 +1569,35 @@
       this.effects = TD.Effects.updateEffects(this.effects, deltaMs);
     }
 
-    showFeedback(message) {
+    showFeedback(message, duration = 3400) {
       this.feedback = message;
-      this.feedbackTimer = 3400;
+      this.feedbackTimer = duration;
     }
 
     updateFeedback(deltaMs) {
       if (this.feedbackTimer > 0) {
         this.feedbackTimer -= deltaMs;
       }
+
+      if (this.placementToast) {
+        this.placementToast.remaining -= deltaMs;
+
+        if (this.placementToast.remaining <= 0) {
+          this.placementToast = null;
+        }
+      }
+    }
+
+    showPlacementToast(message, position) {
+      const margin = 72;
+
+      this.placementToast = {
+        message,
+        x: TD.Utils.clamp(position?.x ?? CONFIG.CANVAS_WIDTH / 2, margin, CONFIG.CANVAS_WIDTH - margin),
+        y: TD.Utils.clamp((position?.y ?? CONFIG.CANVAS_HEIGHT / 2) - 54, margin, CONFIG.CANVAS_HEIGHT - margin),
+        remaining: 1150,
+        duration: 1150
+      };
     }
 
     updateHud() {
@@ -1301,7 +1620,7 @@
       this.elements.selected.textContent = selectedLabel;
       this.elements.feedback.textContent = this.feedbackTimer > 0
         ? this.feedback
-        : this.currentTheme.instructions[0];
+        : this.getPrimaryInstruction();
       this.updateTowerAffordability();
     }
 
@@ -1328,6 +1647,7 @@
 
     updateThemeLabels() {
       const labels = this.currentTheme.labels;
+      const primaryInstruction = this.getPrimaryInstruction();
 
       this.elements.currentModeName.textContent = this.currentTheme.shortName;
       this.elements.heroSubtitle.textContent = this.currentTheme.headerSubtitle;
@@ -1340,7 +1660,7 @@
       this.elements.restart.querySelector('span').textContent = labels.restart;
       this.elements.changeMode.querySelector('span').textContent = labels.changeMode;
       this.elements.routeTitle.textContent = labels.route;
-      this.elements.boardTipText.textContent = this.currentTheme.instructions[0];
+      this.elements.boardTipText.textContent = primaryInstruction;
       this.elements.towerListTitle.textContent = labels.towers;
       this.elements.towerMiniNote.textContent = this.currentTheme.shortName;
       this.elements.gameOverTitle.textContent = labels.gameOverTitle;
@@ -1373,6 +1693,14 @@
       });
 
       this.refreshIcons();
+    }
+
+    getPrimaryInstruction() {
+      if (this.boardLayout === 'mobile' && this.currentTheme.mobileInstructions?.length) {
+        return this.currentTheme.mobileInstructions[0];
+      }
+
+      return this.currentTheme.instructions[0];
     }
 
     updateButtons() {
@@ -1431,7 +1759,8 @@
     }
 
     getRenderState(timestamp = 0) {
-      const selectedType = this.selectedTowerType ? TOWER_TYPES[this.selectedTowerType] : null;
+      const activePlacementType = this.placementPreview?.towerType || this.selectedTowerType || null;
+      const selectedType = activePlacementType ? TOWER_TYPES[activePlacementType] : null;
       const selectedPreviewTower = selectedType ? { ...selectedType, type: selectedType.id } : null;
 
       return {
@@ -1440,10 +1769,15 @@
         projectiles: this.projectiles,
         effects: this.effects,
         selectedTowerType: this.selectedTowerType,
+        activePlacementType,
+        dragPlacement: this.dragPlacement,
         selectedPlacedTower: this.selectedPlacedTower,
         hoveredTower: this.hoveredTower,
         mouse: this.mouse,
         placement: this.placement,
+        placementPreview: this.placementPreview,
+        placementToast: this.placementToast,
+        grid: TD.Grid.getGridConfig(this.currentTheme),
         canAffordSelectedTower: selectedType ? this.economy.canAfford(TD.getEffectiveTowerCost(selectedType.id, this.upgrades)) : false,
         selectedTowerRange: selectedPreviewTower ? TD.getEffectiveTowerRange(selectedPreviewTower, this.upgrades) : 0,
         upgrades: this.upgrades,

@@ -36,6 +36,9 @@
       ctx.clearRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
       this.drawBackground(state.theme);
       this.drawPath(state.pathPoints, state.theme);
+      this.drawPlacementGrid(state);
+      this.drawHoveredGridCell(state);
+      this.drawPlacementPreview(state);
       this.drawEffects(state.effects, true, state.theme, time);
       this.drawTowers(state.towers, state.selectedPlacedTower, state.hoveredTower, state.theme, state.upgrades, {
         lives: state.lives
@@ -44,7 +47,7 @@
       this.drawProjectiles(state.projectiles, state.theme);
       this.drawBaseForeground(state.pathPoints, state.theme);
       this.drawEffects(state.effects, false, state.theme, time);
-      this.drawPlacementPreview(state);
+      this.drawPlacementToast(state);
       this.drawMapHints(state);
     }
 
@@ -227,7 +230,7 @@
       ctx.stroke();
 
       ctx.strokeStyle = palette.path || '#1f2a37';
-      ctx.lineWidth = CONFIG.PATH_WIDTH - 12;
+      ctx.lineWidth = CONFIG.PATH_WIDTH - 22;
       ctx.stroke();
 
       ctx.setLineDash(theme.id === 'medieval' ? [6, 18] : [18, 22]);
@@ -1159,6 +1162,7 @@
       const ctx = this.ctx;
       const art = MEDIEVAL_TOWER_ART;
       ctx.save();
+      ctx.translate(0, CONFIG.MEDIEVAL_ARCHER_VISUAL_Y_OFFSET || 0);
       ctx.shadowColor = 'rgba(0, 0, 0, 0.32)';
       ctx.shadowBlur = selected ? 10 : 4;
       ctx.shadowOffsetY = 2;
@@ -1815,25 +1819,93 @@
         });
     }
 
-    drawPlacementPreview(state) {
-      if (!state.selectedTowerType || !state.mouse.inside || state.gameOver) {
+    drawPlacementGrid(state) {
+      const isDragOverCanvas = state.dragPlacement?.isDragging && state.dragPlacement?.isOverCanvas;
+
+      if ((!state.selectedTowerType && !isDragOverCanvas) || state.gameOver || !state.grid?.enabled) {
         return;
       }
 
-      const towerType = TOWER_TYPES[state.selectedTowerType];
-      const valid = state.placement.valid && state.canAffordSelectedTower;
+      const ctx = this.ctx;
+      const gridSize = state.grid.size || CONFIG.GRID.size;
+      const width = CONFIG.CANVAS_WIDTH;
+      const height = CONFIG.CANVAS_HEIGHT;
+
+      ctx.save();
+      ctx.strokeStyle = state.grid.lineColor || CONFIG.GRID.lineColor;
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x + 0.5, 0);
+        ctx.lineTo(x + 0.5, height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y + 0.5);
+        ctx.lineTo(width, y + 0.5);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    drawHoveredGridCell(state) {
+      const preview = state.placementPreview;
+      const towerType = preview?.towerType || state.activePlacementType || state.selectedTowerType;
+
+      if (!towerType || !preview?.isActive || !preview.cell || state.gameOver) {
+        return;
+      }
+
+      const ctx = this.ctx;
+      const grid = state.grid || TD.Grid.getGridConfig(state.theme);
+      const gridSize = grid.size || CONFIG.GRID.size;
+      const x = preview.cell.col * gridSize;
+      const y = preview.cell.row * gridSize;
+      const width = Math.min(gridSize, CONFIG.CANVAS_WIDTH - x);
+      const height = Math.min(gridSize, CONFIG.CANVAS_HEIGHT - y);
+      const valid = Boolean(preview.canPlace);
+
+      if (width <= 0 || height <= 0) {
+        return;
+      }
+
+      ctx.save();
+      ctx.fillStyle = valid ? grid.validCellColor : grid.invalidCellColor;
+      ctx.strokeStyle = valid ? grid.hoverBorderValid : grid.hoverBorderInvalid;
+      ctx.lineWidth = 2;
+      ctx.fillRect(x, y, width, height);
+      ctx.strokeRect(x + 1, y + 1, width - 2, height - 2);
+      ctx.restore();
+    }
+
+    drawPlacementPreview(state) {
+      const preview = state.placementPreview;
+      const towerTypeId = preview?.towerType || state.activePlacementType || state.selectedTowerType;
+      const isDragOverCanvas = state.dragPlacement?.isDragging && state.dragPlacement?.isOverCanvas;
+
+      if (!towerTypeId || (!state.mouse.inside && !isDragOverCanvas) || !preview?.isActive || !preview.position || state.gameOver) {
+        return;
+      }
+
+      const towerType = TOWER_TYPES[towerTypeId];
+      const valid = preview.canPlace;
       const color = valid ? state.theme.palette.success : state.theme.palette.danger;
       const rangeAlpha = (state.theme.id === 'medieval' ? 0.07 : 0.085) + (state.upgrades?.modifiers?.rangeClarityBonus ? 0.03 : 0);
       const range = state.selectedTowerRange || towerType.range;
+      const position = preview.position;
 
-      this.drawRange(state.mouse.x, state.mouse.y, range, color, rangeAlpha);
+      this.drawRange(position.x, position.y, range, color, rangeAlpha);
 
       if (state.theme.id === 'medieval') {
-        this.drawMedievalPlacementGhost(state.selectedTowerType, state.mouse.x, state.mouse.y, valid, color);
+        this.drawMedievalPlacementGhost(towerTypeId, position.x, position.y, valid, color);
         return;
       }
 
-      this.drawFuturisticPlacementGhost(state.selectedTowerType, state.mouse.x, state.mouse.y, valid, color);
+      this.drawFuturisticPlacementGhost(towerTypeId, position.x, position.y, valid, color);
     }
 
     drawFuturisticPlacementGhost(type, x, y, valid, color) {
@@ -1941,6 +2013,61 @@
       ctx.textAlign = 'center';
       ctx.fillText(state.theme.instructions[0], CONFIG.CANVAS_WIDTH / 2, 36);
       ctx.restore();
+    }
+
+    drawPlacementToast(state) {
+      const toast = state.placementToast;
+
+      if (!toast?.message || toast.remaining <= 0) {
+        return;
+      }
+
+      const ctx = this.ctx;
+      const progress = 1 - toast.remaining / toast.duration;
+      const alpha = Math.max(0, Math.min(1, toast.remaining / 180, 1 - Math.max(0, progress - 0.78) / 0.22));
+      const text = toast.message;
+      const fontSize = CONFIG.CURRENT_LAYOUT === 'mobile' ? 18 : 16;
+      const paddingX = 16;
+      const height = 38;
+      const radius = 12;
+
+      ctx.save();
+      ctx.font = `700 ${fontSize}px Figtree, sans-serif`;
+      const width = Math.min(CONFIG.CANVAS_WIDTH - 40, ctx.measureText(text).width + paddingX * 2);
+      const x = toast.x - width / 2;
+      const y = toast.y - height / 2 - progress * 8;
+
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = state.theme.id === 'medieval'
+        ? 'rgba(42, 25, 12, 0.88)'
+        : 'rgba(8, 13, 22, 0.88)';
+      ctx.strokeStyle = state.theme.palette.danger || 'rgba(248, 113, 113, 0.9)';
+      ctx.lineWidth = 1.5;
+      this.drawRoundRect(ctx, x, y, width, height, radius);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = state.theme.id === 'medieval' ? '#F3EAD7' : '#E8F6FF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, toast.x, y + height / 2 + 1);
+      ctx.restore();
+    }
+
+    drawRoundRect(ctx, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + width - r, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+      ctx.lineTo(x + width, y + height - r);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+      ctx.lineTo(x + r, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
     }
   }
 
