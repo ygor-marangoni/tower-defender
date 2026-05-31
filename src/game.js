@@ -234,9 +234,7 @@
 
     tower.id = savedTower.id || tower.id;
     tower.level = Math.max(1, readPositiveInteger(savedTower.level, tower.level));
-    tower.damage = Math.max(1, readPositiveInteger(savedTower.damage, tower.damage));
-    tower.range = Math.max(1, readPositiveInteger(savedTower.range, tower.range));
-    tower.cooldown = Math.max(140, readPositiveInteger(savedTower.cooldown, tower.cooldown));
+    tower.applyLevelStats();
     tower.totalInvested = Math.max(0, readPositiveInteger(savedTower.totalInvested, tower.totalInvested));
     tower.rotation = readFiniteNumber(savedTower.rotation, tower.rotation);
     tower.cardDamageMultiplier = Math.max(0.1, readFiniteNumber(savedTower.cardDamageMultiplier, tower.cardDamageMultiplier || 1));

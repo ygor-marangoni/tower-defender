@@ -118,5 +118,32 @@
       expect(tower.totalInvested).toBe(50 + upgradeCost);
       expect(tower.getSellValue()).toBe(Math.floor((50 + upgradeCost) * 0.7));
     });
+
+    test('upgrade deve usar progressao controlada sem juros compostos no dano', () => {
+      const tower = new TD.Tower({ type: 'basic', x: 100, y: 100 });
+
+      while (tower.level < 24) {
+        tower.upgrade(tower.getUpgradeCost());
+      }
+
+      expect(tower.level).toBe(24);
+      expect(tower.damage).toBeLessThan(100);
+      expect(tower.range).toBeLessThan(190);
+      expect(tower.cooldown).toBeGreaterThan(350);
+    });
+
+    test('stats de upgrade devem ser derivados do nivel e nao do dano atual', () => {
+      const cleanTower = new TD.Tower({ type: 'heavy', x: 100, y: 100 });
+      const inflatedTower = new TD.Tower({ type: 'heavy', x: 100, y: 100 });
+
+      inflatedTower.damage = 100000;
+
+      cleanTower.upgrade(cleanTower.getUpgradeCost());
+      inflatedTower.upgrade(inflatedTower.getUpgradeCost());
+
+      expect(inflatedTower.damage).toBe(cleanTower.damage);
+      expect(inflatedTower.range).toBe(cleanTower.range);
+      expect(inflatedTower.cooldown).toBe(cleanTower.cooldown);
+    });
   });
 })(globalThis);

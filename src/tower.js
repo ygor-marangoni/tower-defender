@@ -2,9 +2,62 @@
   const TD = global.TowerDefender = global.TowerDefender || {};
   const { CONFIG, TOWER_TYPES } = TD;
 
+  function getBaseTowerStats(type) {
+    return TOWER_TYPES[type] || TOWER_TYPES.basic;
+  }
+
+  function getUpgradeBonusLevels(level) {
+    return Math.max(0, Math.floor(level) - 1);
+  }
+
+  function getDiminishingDamageMultiplier(level) {
+    const upgradeConfig = CONFIG.TOWER_UPGRADE || {};
+    const bonusLevels = getUpgradeBonusLevels(level);
+    const earlyLevelCount = upgradeConfig.earlyLevelCount ?? 12;
+    const earlyLevels = Math.min(bonusLevels, earlyLevelCount);
+    const lateLevels = Math.max(0, bonusLevels - earlyLevelCount);
+    const earlyGrowth = upgradeConfig.damageGrowthEarly ?? 0.16;
+    const lateGrowth = upgradeConfig.damageGrowthLate ?? 0.075;
+
+    return 1 + earlyLevels * earlyGrowth + lateLevels * lateGrowth;
+  }
+
+  function getTowerStatsForLevel(type, level) {
+    const stats = getBaseTowerStats(type);
+    const upgradeConfig = CONFIG.TOWER_UPGRADE || {};
+    const bonusLevels = getUpgradeBonusLevels(level);
+    const rangeBonus = Math.min(
+      upgradeConfig.maxRangeBonus ?? 70,
+      bonusLevels * (upgradeConfig.rangePerLevel ?? 5)
+    );
+    const cooldownReduction = Math.min(
+      upgradeConfig.maxCooldownReduction ?? 0.45,
+      bonusLevels * (upgradeConfig.cooldownReductionPerLevel ?? 0.035)
+    );
+
+    return {
+      damage: Math.max(1, Math.round(stats.damage * getDiminishingDamageMultiplier(level))),
+      range: Math.round(stats.range + rangeBonus),
+      cooldown: Math.max(
+        upgradeConfig.minCooldown ?? 140,
+        Math.round(stats.cooldown * (1 - cooldownReduction))
+      )
+    };
+  }
+
+  function getTowerUpgradeCost(type, level) {
+    const stats = getBaseTowerStats(type);
+    const upgradeConfig = CONFIG.TOWER_UPGRADE || {};
+    const costMultiplier = (upgradeConfig.costBaseMultiplier ?? 0.8)
+      + level * (upgradeConfig.costLevelMultiplier ?? 0.45)
+      + Math.pow(level, upgradeConfig.costGrowthExponent ?? 1.25) * (upgradeConfig.costGrowthMultiplier ?? 0.12);
+
+    return Math.round(stats.cost * costMultiplier);
+  }
+
   class Tower {
     constructor({ type = 'basic', x, y, themeId = TD.DEFAULT_THEME_ID }) {
-      const stats = TOWER_TYPES[type] || TOWER_TYPES.basic;
+      const stats = getBaseTowerStats(type);
 
       this.id = TD.Utils.createId('tower');
       this.type = stats.id;
@@ -130,7 +183,7 @@
     }
 
     getUpgradeCost() {
-      return Math.round(this.cost * (0.7 + this.level * 0.45));
+      return getTowerUpgradeCost(this.type, this.level);
     }
 
     addInvestment(amount) {
@@ -156,13 +209,22 @@
     upgrade(upgradeCost = this.getUpgradeCost()) {
       this.addInvestment(upgradeCost);
       this.level += 1;
-      this.damage = Math.round(this.damage * 1.25);
-      this.range = Math.round(this.range + 10);
-      this.cooldown = Math.max(140, Math.round(this.cooldown * 0.9));
+      this.applyLevelStats();
 
+      return this;
+    }
+
+    applyLevelStats() {
+      const stats = getTowerStatsForLevel(this.type, this.level);
+
+      this.damage = stats.damage;
+      this.range = stats.range;
+      this.cooldown = stats.cooldown;
       return this;
     }
   }
 
+  TD.getTowerStatsForLevel = getTowerStatsForLevel;
+  TD.getTowerUpgradeCost = getTowerUpgradeCost;
   TD.Tower = Tower;
 })(globalThis);

@@ -40,6 +40,20 @@
     MIN_TOWER_SELECTION_RADIUS: 18,
     PROJECTILE_RADIUS: 4,
     PLACEMENT_PADDING: 5,
+    TOWER_UPGRADE: {
+      earlyLevelCount: 12,
+      damageGrowthEarly: 0.16,
+      damageGrowthLate: 0.075,
+      rangePerLevel: 5,
+      maxRangeBonus: 70,
+      cooldownReductionPerLevel: 0.035,
+      maxCooldownReduction: 0.45,
+      minCooldown: 140,
+      costBaseMultiplier: 0.8,
+      costLevelMultiplier: 0.45,
+      costGrowthMultiplier: 0.12,
+      costGrowthExponent: 1.25
+    },
     GRID: {
       enabled: true,
       size: 48,
