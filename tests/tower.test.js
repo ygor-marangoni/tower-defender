@@ -119,7 +119,7 @@
       expect(tower.getSellValue()).toBe(Math.floor((50 + upgradeCost) * 0.7));
     });
 
-    test('upgrade deve usar progressao controlada sem juros compostos no dano', () => {
+    test('upgrade deve usar progressao forte sem juros compostos no dano', () => {
       const tower = new TD.Tower({ type: 'basic', x: 100, y: 100 });
 
       while (tower.level < 24) {
@@ -127,8 +127,9 @@
       }
 
       expect(tower.level).toBe(24);
-      expect(tower.damage).toBeLessThan(100);
-      expect(tower.range).toBeLessThan(190);
+      expect(tower.damage).toBeGreaterThan(320);
+      expect(tower.damage).toBeLessThan(420);
+      expect(tower.range).toBeLessThan(210);
       expect(tower.cooldown).toBeGreaterThan(350);
     });
 

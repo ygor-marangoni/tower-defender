@@ -13,13 +13,13 @@
   function getDiminishingDamageMultiplier(level) {
     const upgradeConfig = CONFIG.TOWER_UPGRADE || {};
     const bonusLevels = getUpgradeBonusLevels(level);
-    const earlyLevelCount = upgradeConfig.earlyLevelCount ?? 12;
-    const earlyLevels = Math.min(bonusLevels, earlyLevelCount);
-    const lateLevels = Math.max(0, bonusLevels - earlyLevelCount);
-    const earlyGrowth = upgradeConfig.damageGrowthEarly ?? 0.16;
-    const lateGrowth = upgradeConfig.damageGrowthLate ?? 0.075;
+    const linearGrowth = upgradeConfig.damageLinearGrowth ?? 0.32;
+    const curveGrowth = upgradeConfig.damageCurveGrowth ?? 0.14;
+    const curveExponent = upgradeConfig.damageCurveExponent ?? 1.35;
+    const maxMultiplier = upgradeConfig.maxDamageMultiplier ?? 60;
+    const multiplier = 1 + bonusLevels * linearGrowth + Math.pow(bonusLevels, curveExponent) * curveGrowth;
 
-    return 1 + earlyLevels * earlyGrowth + lateLevels * lateGrowth;
+    return Math.min(maxMultiplier, multiplier);
   }
 
   function getTowerStatsForLevel(type, level) {
