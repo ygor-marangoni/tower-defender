@@ -1,6 +1,18 @@
 (function towerTests(global) {
   const TD = global.TowerDefender;
 
+  function upgradeToLevel(tower, level) {
+    while (tower.level < level) {
+      tower.upgrade(tower.getUpgradeCost());
+    }
+
+    return tower;
+  }
+
+  function getDps(tower) {
+    return Math.round(tower.damage / (tower.cooldown / 1000));
+  }
+
   describe('Tower', () => {
     test('torre deve iniciar com dano, alcance e custo corretos', () => {
       const tower = new TD.Tower({ type: 'basic', x: 120, y: 120 });
@@ -120,17 +132,28 @@
     });
 
     test('upgrade deve usar progressao forte sem juros compostos no dano', () => {
-      const tower = new TD.Tower({ type: 'basic', x: 100, y: 100 });
-
-      while (tower.level < 24) {
-        tower.upgrade(tower.getUpgradeCost());
-      }
+      const tower = upgradeToLevel(new TD.Tower({ type: 'basic', x: 100, y: 100 }), 24);
 
       expect(tower.level).toBe(24);
-      expect(tower.damage).toBeGreaterThan(320);
-      expect(tower.damage).toBeLessThan(420);
+      expect(tower.damage).toBeGreaterThan(330);
+      expect(tower.damage).toBeLessThan(390);
       expect(tower.range).toBeLessThan(210);
       expect(tower.cooldown).toBeGreaterThan(350);
+    });
+
+    test('curvas de upgrade devem balancear DPS por tipo de torre', () => {
+      const basic = upgradeToLevel(new TD.Tower({ type: 'basic', x: 100, y: 100 }), 24);
+      const rapid = upgradeToLevel(new TD.Tower({ type: 'rapid', x: 100, y: 100 }), 24);
+      const heavy = upgradeToLevel(new TD.Tower({ type: 'heavy', x: 100, y: 100 }), 24);
+
+      expect(getDps(basic)).toBeGreaterThan(820);
+      expect(getDps(basic)).toBeLessThan(920);
+      expect(getDps(rapid)).toBeGreaterThan(800);
+      expect(getDps(rapid)).toBeLessThan(920);
+      expect(getDps(heavy)).toBeGreaterThan(1100);
+      expect(getDps(heavy)).toBeLessThan(1300);
+      expect(rapid.range).toBeLessThan(basic.range);
+      expect(heavy.range).toBeGreaterThan(rapid.range);
     });
 
     test('stats de upgrade devem ser derivados do nivel e nao do dano atual', () => {

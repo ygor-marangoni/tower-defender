@@ -41,19 +41,55 @@
     PROJECTILE_RADIUS: 4,
     PLACEMENT_PADDING: 5,
     TOWER_UPGRADE: {
-      damageLinearGrowth: 0.32,
-      damageCurveGrowth: 0.14,
-      damageCurveExponent: 1.35,
-      maxDamageMultiplier: 60,
-      rangePerLevel: 6,
-      maxRangeBonus: 90,
-      cooldownReductionPerLevel: 0.035,
-      maxCooldownReduction: 0.45,
+      dpsLinearGrowth: 0.5,
+      dpsCurveGrowth: 0.34,
+      dpsCurveExponent: 1.22,
+      maxDpsMultiplier: 38,
+      rangePerLevel: 5,
+      maxRangeBonus: 80,
+      cooldownReductionPerLevel: 0.026,
+      maxCooldownReduction: 0.38,
       minCooldown: 140,
       costBaseMultiplier: 0.8,
       costLevelMultiplier: 0.38,
       costGrowthMultiplier: 0.09,
-      costGrowthExponent: 1.25
+      costGrowthExponent: 1.25,
+      curves: {
+        basic: {
+          dpsLinearGrowth: 0.5,
+          dpsCurveGrowth: 0.36,
+          maxDpsMultiplier: 34,
+          rangePerLevel: 6,
+          maxRangeBonus: 90,
+          cooldownReductionPerLevel: 0.028,
+          maxCooldownReduction: 0.4,
+          costLevelMultiplier: 0.36,
+          costGrowthMultiplier: 0.08
+        },
+        rapid: {
+          dpsLinearGrowth: 0.45,
+          dpsCurveGrowth: 0.31,
+          maxDpsMultiplier: 30,
+          rangePerLevel: 4,
+          maxRangeBonus: 70,
+          cooldownReductionPerLevel: 0.022,
+          maxCooldownReduction: 0.34,
+          minCooldown: 150,
+          costLevelMultiplier: 0.4,
+          costGrowthMultiplier: 0.1
+        },
+        heavy: {
+          dpsLinearGrowth: 0.58,
+          dpsCurveGrowth: 0.4,
+          maxDpsMultiplier: 36,
+          rangePerLevel: 5,
+          maxRangeBonus: 80,
+          cooldownReductionPerLevel: 0.023,
+          maxCooldownReduction: 0.36,
+          costLevelMultiplier: 0.42,
+          costGrowthMultiplier: 0.11
+        }
+      }
     },
     GRID: {
       enabled: true,

@@ -10,13 +10,24 @@
     return Math.max(0, Math.floor(level) - 1);
   }
 
-  function getDiminishingDamageMultiplier(level) {
+  function getUpgradeCurve(type) {
     const upgradeConfig = CONFIG.TOWER_UPGRADE || {};
+    const typeCurve = upgradeConfig.curves?.[type] || {};
+
+    return {
+      ...upgradeConfig,
+      ...typeCurve,
+      curves: undefined
+    };
+  }
+
+  function getDpsMultiplier(type, level) {
+    const curve = getUpgradeCurve(type);
     const bonusLevels = getUpgradeBonusLevels(level);
-    const linearGrowth = upgradeConfig.damageLinearGrowth ?? 0.32;
-    const curveGrowth = upgradeConfig.damageCurveGrowth ?? 0.14;
-    const curveExponent = upgradeConfig.damageCurveExponent ?? 1.35;
-    const maxMultiplier = upgradeConfig.maxDamageMultiplier ?? 60;
+    const linearGrowth = curve.dpsLinearGrowth ?? 0.5;
+    const curveGrowth = curve.dpsCurveGrowth ?? 0.34;
+    const curveExponent = curve.dpsCurveExponent ?? 1.22;
+    const maxMultiplier = curve.maxDpsMultiplier ?? 38;
     const multiplier = 1 + bonusLevels * linearGrowth + Math.pow(bonusLevels, curveExponent) * curveGrowth;
 
     return Math.min(maxMultiplier, multiplier);
@@ -24,33 +35,36 @@
 
   function getTowerStatsForLevel(type, level) {
     const stats = getBaseTowerStats(type);
-    const upgradeConfig = CONFIG.TOWER_UPGRADE || {};
+    const curve = getUpgradeCurve(stats.id);
     const bonusLevels = getUpgradeBonusLevels(level);
     const rangeBonus = Math.min(
-      upgradeConfig.maxRangeBonus ?? 70,
-      bonusLevels * (upgradeConfig.rangePerLevel ?? 5)
+      curve.maxRangeBonus ?? 80,
+      bonusLevels * (curve.rangePerLevel ?? 5)
     );
     const cooldownReduction = Math.min(
-      upgradeConfig.maxCooldownReduction ?? 0.45,
-      bonusLevels * (upgradeConfig.cooldownReductionPerLevel ?? 0.035)
+      curve.maxCooldownReduction ?? 0.38,
+      bonusLevels * (curve.cooldownReductionPerLevel ?? 0.026)
     );
+    const cooldown = Math.max(
+      curve.minCooldown ?? 140,
+      Math.round(stats.cooldown * (1 - cooldownReduction))
+    );
+    const baseDps = stats.damage / (stats.cooldown / 1000);
+    const targetDps = baseDps * getDpsMultiplier(stats.id, level);
 
     return {
-      damage: Math.max(1, Math.round(stats.damage * getDiminishingDamageMultiplier(level))),
+      damage: Math.max(1, Math.round(targetDps * (cooldown / 1000))),
       range: Math.round(stats.range + rangeBonus),
-      cooldown: Math.max(
-        upgradeConfig.minCooldown ?? 140,
-        Math.round(stats.cooldown * (1 - cooldownReduction))
-      )
+      cooldown
     };
   }
 
   function getTowerUpgradeCost(type, level) {
     const stats = getBaseTowerStats(type);
-    const upgradeConfig = CONFIG.TOWER_UPGRADE || {};
-    const costMultiplier = (upgradeConfig.costBaseMultiplier ?? 0.8)
-      + level * (upgradeConfig.costLevelMultiplier ?? 0.45)
-      + Math.pow(level, upgradeConfig.costGrowthExponent ?? 1.25) * (upgradeConfig.costGrowthMultiplier ?? 0.12);
+    const curve = getUpgradeCurve(stats.id);
+    const costMultiplier = (curve.costBaseMultiplier ?? 0.8)
+      + level * (curve.costLevelMultiplier ?? 0.38)
+      + Math.pow(level, curve.costGrowthExponent ?? 1.25) * (curve.costGrowthMultiplier ?? 0.09);
 
     return Math.round(stats.cost * costMultiplier);
   }
